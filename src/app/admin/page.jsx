@@ -68,21 +68,9 @@ const AdminPanel = () => {
         
         // Custom storage event'i tetikle (diğer component'lerin güncellenmesi için)
         window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
-      }
-      
-      // API'ye gönder
-      const response = await fetch('/api/admin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: tempData }),
-      });
-      
-      if (response.ok) {
+        
+        console.log('Veriler localStorage\'a kaydedildi:', tempData);
         alert('Değişiklikler başarıyla kaydedildi! Sayfayı yenileyerek değişiklikleri görebilirsiniz.');
-      } else {
-        alert('Kaydetme sırasında hata oluştu!');
       }
     } catch (error) {
       console.error('Kaydetme hatası:', error);
