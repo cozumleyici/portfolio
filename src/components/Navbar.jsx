@@ -15,16 +15,27 @@ const Navbar = () => {
     }
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+  const handleNavClick = (href) => {
+  setIsOpen(false);
+  // Eğer admin linki değilse smooth scroll yap
+  if (href.startsWith('#')) {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }
+};
+
+const toggleTheme = () => {
+  setIsDark(!isDark);
+  if (!isDark) {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }
+};
 
   const navItems = [
     { name: 'Ana Sayfa', href: '#home' },
@@ -91,8 +102,8 @@ const Navbar = () => {
               <a
                 key={item.name}
                 href={item.href}
-                className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-                onClick={() => setIsOpen(false)}
+                onClick={() => handleNavClick(item.href)}
+                className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md cursor-pointer"
               >
                 {item.name}
               </a>

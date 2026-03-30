@@ -103,7 +103,7 @@ const Projects = () => {
                     <p className="text-sm opacity-90">Proje Görseli</p>
                   </div>
                 </div>
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <div className="flex space-x-4">
                     {project.github && (
                       <motion.a
@@ -111,7 +111,8 @@ const Projects = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.1 }}
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-900"
+                        whileTap={{ scale: 0.95 }}
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-lg"
                       >
                         <FaGithub size={20} />
                       </motion.a>
@@ -122,7 +123,8 @@ const Projects = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.1 }}
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-900"
+                        whileTap={{ scale: 0.95 }}
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-lg"
                       >
                         <FaExternalLinkAlt size={16} />
                       </motion.a>
