@@ -82,7 +82,7 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // EmailJS ile gönder
+      // EmailJS ile gönder (şimdi çalışmalı!)
       const emailjs = (await import('@emailjs/browser')).default;
       const { emailConfig } = await import('@/config/emailConfig');
       
@@ -93,12 +93,20 @@ const Contact = () => {
         from_email: formData.email,
         message: formData.message,
         to_name: emailConfig.TO_NAME,
+        to_email: emailConfig.TO_EMAIL,
+        subject: 'Portfolio İletişim Formu - Yeni Mesaj',
       };
 
-      await emailjs.send(emailConfig.SERVICE_ID, emailConfig.TEMPLATE_ID, templateParams);
+      const response = await emailjs.send(
+        emailConfig.SERVICE_ID, 
+        emailConfig.TEMPLATE_ID, 
+        templateParams
+      );
       
+      console.log('Email gönderildi:', response);
       setSubmitStatus('success');
       setFormData({ name: '', email: '', message: '' });
+      
     } catch (error) {
       console.error('Email gönderme hatası:', error);
       setSubmitStatus('error');
