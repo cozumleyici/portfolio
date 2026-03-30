@@ -82,21 +82,25 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // EmailJS ile gönder
+      const emailjs = (await import('@emailjs/browser')).default;
+      const { emailConfig } = await import('@/config/emailConfig');
+      
+      emailjs.init(emailConfig.PUBLIC_KEY);
+      
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_name: emailConfig.TO_NAME,
+      };
 
-      if (response.ok) {
-        setSubmitStatus('success');
-        setFormData({ name: '', email: '', message: '' });
-      } else {
-        setSubmitStatus('error');
-      }
+      await emailjs.send(emailConfig.SERVICE_ID, emailConfig.TEMPLATE_ID, templateParams);
+      
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
     } catch (error) {
+      console.error('Email gönderme hatası:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -263,7 +267,7 @@ const Contact = () => {
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-blue-500"
               >
                 {isSubmitting ? (
                   <>
