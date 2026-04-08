@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "update-txt": "node scripts/update-txt-files.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

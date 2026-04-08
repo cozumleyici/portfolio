@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TXT Files Updater</title>
+</head>
+<body>
+    <h1>TXT Files Updater</h1>
+    <button onclick="updateFiles()">Update TXT Files</button>
+    <div id="result"></div>
+    
+    <script>
+        function updateFiles() {
+            try {
+                // localStorage'dan verileri al
+                const portfolioData = JSON.parse(localStorage.getItem('portfolioData') || '{}');
+                const files = portfolioData.files || {};
+                
+                const fileContents = {
+                    'vers_kontrolu.txt': files.vers_kontrolu || '1.0.0.1',
+                    'vers_kontroluBillboard.txt': files.vers_kontroluBillboard || '1.0.0.29',
+                    'vers_kontroluCBS.txt': files.vers_kontroluCBS || '1.0.0.2',
+                    'vers_kontroluExcelArama.txt': files.vers_kontroluExcelArama || '1.0.0.8',
+                    'vers_kontroluTespitKontrol.txt': files.vers_kontroluTespitKontrol || '1.0.0.33'
+                };
+                
+                // Dosya içeriklerini göster
+                let result = '<h3>Updated Files:</h3>';
+                Object.entries(fileContents).forEach(([filename, content]) => {
+                    result += `${filename}: ${content}<br>`;
+                });
+                
+                document.getElementById('result').innerHTML = result;
+                
+                // Verileri clipboard'a kopyala
+                const dataToCopy = JSON.stringify(fileContents, null, 2);
+                navigator.clipboard.writeText(dataToCopy).then(() => {
+                    alert('File contents copied to clipboard! Paste into the update script.');
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
