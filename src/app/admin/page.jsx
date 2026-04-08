@@ -19,12 +19,8 @@ const AdminPanel = () => {
       const saved = localStorage.getItem('portfolioData');
       if (saved) {
         const parsedData = JSON.parse(saved);
-        // E localStorage'da files bölümü yoksa, portfolioData'dan ekle
-        if (!parsedData.files) {
-          parsedData.files = portfolioData.files;
-          // localStorage'ý güncelle
-          localStorage.setItem('portfolioData', JSON.stringify(parsedData));
-        }
+        // Her zaman PortfolioData'dan güncel files verisini al
+        parsedData.files = portfolioData.files;
         return parsedData;
       }
     }
