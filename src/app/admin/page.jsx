@@ -5,7 +5,6 @@ import { FaSave, FaEye, FaEdit, FaTrash, FaPlus, FaTimes, FaBars } from 'react-i
 import { portfolioData } from '@/data/portfolioData';
 
 const AdminPanel = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,17 +25,31 @@ const AdminPanel = () => {
     }
     return JSON.parse(JSON.stringify(portfolioData));
   };
+
+  // Login durumunu localStorage'dan kontrol et
+  const checkLoginStatus = () => {
+    if (typeof window !== 'undefined') {
+      const savedLoginStatus = localStorage.getItem('adminLoggedIn');
+      return savedLoginStatus === 'true';
+    }
+    return false;
+  };
   
   const [tempData, setTempData] = useState(getSavedData());
   const [showPreview, setShowPreview] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(checkLoginStatus());
 
   const handleLogin = (e) => {
     e.preventDefault();
     const savedPassword = typeof window !== 'undefined' ? (localStorage.getItem('adminPassword') || 'admin123') : 'admin123';
     if (password === savedPassword) {
       setIsLoggedIn(true);
+      // Login durumunu localStorage'da kaydet
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('adminLoggedIn', 'true');
+      }
     } else {
-      alert('Yanlış şifre!');
+      alert('Yanlýþ þifre!');
     }
   };
 
@@ -44,11 +57,16 @@ const AdminPanel = () => {
     setIsLoggedIn(false);
     setPassword('');
     setShowPasswordChange(false);
+    // Login durumunu localStorage'dan sil
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('adminLoggedIn', 'false');
+    }
   };
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
+      alert('Þifreler eþleþmiyor!');
       alert('Şifreler eşleşmiyor!');
       return;
     }
@@ -69,26 +87,13 @@ const AdminPanel = () => {
     try {
       // localStorage'a kaydet
       if (typeof window !== 'undefined') {
-        // PortfolioData'dan güncel files verisini koru
-        const dataToSave = {
-          ...tempData,
-          files: {
-            ...tempData.files,
-            // Deðiþiklik yapýlan TXT dosyalarýný kaydet
-            vers_kontrolu: tempData.files?.vers_kontrolu || portfolioData.files.vers_kontrolu,
-            vers_kontroluBillboard: tempData.files?.vers_kontroluBillboard || portfolioData.files.vers_kontroluBillboard,
-            vers_kontroluCBS: tempData.files?.vers_kontroluCBS || portfolioData.files.vers_kontroluCBS,
-            vers_kontroluExcelArama: tempData.files?.vers_kontroluExcelArama || portfolioData.files.vers_kontroluExcelArama,
-            vers_kontroluTespitKontrol: tempData.files?.vers_kontroluTespitKontrol || portfolioData.files.vers_kontroluTespitKontrol
-          }
-        };
-        
-        localStorage.setItem('portfolioData', JSON.stringify(dataToSave));
+        // tempData'yi dogrudan kaydet - files verisi zaten içinde
+        localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
         // Custom storage event'i tetikle (diðer component'lerin güncellenmesi için)
-        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: dataToSave }));
+        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
         
-        console.log('Veriler localStorage\'a kaydedildi:', dataToSave);
+        console.log('Veriler localStorage\'a kaydedildi:', tempData);
         alert('Deðiþiklikler baþarýyla kaydedildi!');
       }
     } catch (error) {
