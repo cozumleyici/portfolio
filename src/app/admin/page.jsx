@@ -87,7 +87,7 @@ const AdminPanel = () => {
     try {
       console.log('handleSave called, tempData.files:', tempData.files);
       
-      // TXT dosyalarýný download et
+      // TXT dosyalarýný localStorage'a kaydet
       if (tempData.files) {
         const fileContents = {
           'vers_kontrolu.txt': tempData.files.vers_kontrolu || '1.0.0.1',
@@ -97,28 +97,16 @@ const AdminPanel = () => {
           'vers_kontroluTespitKontrol.txt': tempData.files.vers_kontroluTespitKontrol || '1.0.0.33'
         };
 
-        // Her dosyayý ayrý ayrý download et
+        // Her dosyayý ayrý ayrý localStorage'a kaydet
         Object.entries(fileContents).forEach(([filename, content]) => {
-          // Blob oluþtur
-          const blob = new Blob([content], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          
-          // Download linki oluþtur
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          
-          console.log(`Downloaded ${filename}:`, content);
+          localStorage.setItem(`txt_${filename}`, content);
+          console.log(`Saved ${filename}:`, content);
         });
 
-        // Veriyi localStorage'a da kaydet (backup)
+        // Tüm veriyi de kaydet (backup)
         localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        alert('TXT dosyalarý baþarýyla download edildi! Dosyalarý bilgisayarýnýza kaydedin.');
+        alert('TXT dosyalarý baþarýyla kaydedildi! Deðiþiklikler Vercel deploy ile güncellenecek.');
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
