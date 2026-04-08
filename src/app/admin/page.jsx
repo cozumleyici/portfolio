@@ -106,12 +106,64 @@ const AdminPanel = () => {
         // Tüm veriyi de kaydet (backup)
         localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        alert('TXT dosyalarý baþarýyla kaydedildi! Deðiþiklikler Vercel deploy ile güncellenecek.');
+        alert('TXT dosyalarý baþarýyla kaydedildi! Download ve Upload butonlarýný kullanabilirsiniz.');
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
       alert('Kaydetme sýrasýnda hata oluþtu!');
     }
+  };
+
+  // TXT dosyalarýný download et
+  const handleDownloadFile = (filename) => {
+    try {
+      const content = tempData.files?.[filename.replace('.txt', '')] || '';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log(`Downloaded ${filename}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Download hatasý!');
+    }
+  };
+
+  // TXT dosyasýný upload et
+  const handleUploadFile = (filename) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target.result;
+          const fieldName = filename.replace('.txt', '');
+          
+          setTempData(prev => ({
+            ...prev,
+            files: {
+              ...prev.files,
+              [fieldName]: content
+            }
+          }));
+          
+          console.log(`Uploaded ${filename}:`, content);
+          alert(`${filename} baþarýyla yüklendi! Kaydet butonuna týklayýn.`);
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
   };
 
   const handleEdit = (section, field, value) => {
@@ -804,9 +856,23 @@ const AdminPanel = () => {
                         value={tempData.files?.vers_kontrolu || ''}
                         onChange={(e) => handleEdit('files', 'vers_kontrolu', e.target.value)}
                         className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows={3}
-                        placeholder="Versiyon kontrolü içeriği..."
+                        rows="3"
+                        placeholder="Versiyon numarasý girin..."
                       />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleDownloadFile('vers_kontrolu.txt')}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleUploadFile('vers_kontrolu.txt')}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -816,9 +882,23 @@ const AdminPanel = () => {
                         value={tempData.files?.vers_kontroluBillboard || ''}
                         onChange={(e) => handleEdit('files', 'vers_kontroluBillboard', e.target.value)}
                         className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows={3}
+                        rows="3"
                         placeholder="Billboard versiyon kontrolü içeriği..."
                       />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleDownloadFile('vers_kontroluBillboard.txt')}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleUploadFile('vers_kontroluBillboard.txt')}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -828,9 +908,23 @@ const AdminPanel = () => {
                         value={tempData.files?.vers_kontroluCBS || ''}
                         onChange={(e) => handleEdit('files', 'vers_kontroluCBS', e.target.value)}
                         className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows={3}
+                        rows="3"
                         placeholder="CBS versiyon kontrolü içeriği..."
                       />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleDownloadFile('vers_kontroluCBS.txt')}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleUploadFile('vers_kontroluCBS.txt')}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -840,9 +934,23 @@ const AdminPanel = () => {
                         value={tempData.files?.vers_kontroluExcelArama || ''}
                         onChange={(e) => handleEdit('files', 'vers_kontroluExcelArama', e.target.value)}
                         className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows={3}
+                        rows="3"
                         placeholder="Excel arama versiyon kontrolü içeriği..."
                       />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleDownloadFile('vers_kontroluExcelArama.txt')}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleUploadFile('vers_kontroluExcelArama.txt')}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -852,9 +960,23 @@ const AdminPanel = () => {
                         value={tempData.files?.vers_kontroluTespitKontrol || ''}
                         onChange={(e) => handleEdit('files', 'vers_kontroluTespitKontrol', e.target.value)}
                         className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows={3}
+                        rows="3"
                         placeholder="Tespit kontrol versiyon kontrolü içeriği..."
                       />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleDownloadFile('vers_kontroluTespitKontrol.txt')}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleUploadFile('vers_kontroluTespitKontrol.txt')}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
