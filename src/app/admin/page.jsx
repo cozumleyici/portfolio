@@ -69,17 +69,31 @@ const AdminPanel = () => {
     try {
       // localStorage'a kaydet
       if (typeof window !== 'undefined') {
-        localStorage.setItem('portfolioData', JSON.stringify(tempData));
+        // PortfolioData'dan güncel files verisini koru
+        const dataToSave = {
+          ...tempData,
+          files: {
+            ...tempData.files,
+            // Deðiþiklik yapýlan TXT dosyalarýný kaydet
+            vers_kontrolu: tempData.files?.vers_kontrolu || portfolioData.files.vers_kontrolu,
+            vers_kontroluBillboard: tempData.files?.vers_kontroluBillboard || portfolioData.files.vers_kontroluBillboard,
+            vers_kontroluCBS: tempData.files?.vers_kontroluCBS || portfolioData.files.vers_kontroluCBS,
+            vers_kontroluExcelArama: tempData.files?.vers_kontroluExcelArama || portfolioData.files.vers_kontroluExcelArama,
+            vers_kontroluTespitKontrol: tempData.files?.vers_kontroluTespitKontrol || portfolioData.files.vers_kontroluTespitKontrol
+          }
+        };
         
-        // Custom storage event'i tetikle (diğer component'lerin güncellenmesi için)
-        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
+        localStorage.setItem('portfolioData', JSON.stringify(dataToSave));
         
-        console.log('Veriler localStorage\'a kaydedildi:', tempData);
-        alert('Değişiklikler başarıyla kaydedildi! Sayfayı yenileyerek değişiklikleri görebilirsiniz.');
+        // Custom storage event'i tetikle (diðer component'lerin güncellenmesi için)
+        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: dataToSave }));
+        
+        console.log('Veriler localStorage\'a kaydedildi:', dataToSave);
+        alert('Deðiþiklikler baþarýyla kaydedildi!');
       }
     } catch (error) {
-      console.error('Kaydetme hatası:', error);
-      alert('Kaydetme sırasında hata oluştu!');
+      console.error('Kaydetme hatasý:', error);
+      alert('Kaydetme sýrasýnda hata oluþtu!');
     }
   };
 
