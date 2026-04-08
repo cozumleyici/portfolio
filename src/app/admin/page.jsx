@@ -97,9 +97,6 @@ const AdminPanel = () => {
         const saved = localStorage.getItem('portfolioData');
         console.log('Verified saved data:', saved);
         
-        // Custom event tetikle
-        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
-        
         console.log('Kaydedilen veriler:', tempData);
         alert('Deðiþiklikler baþarýyla kaydedildi!');
       }
