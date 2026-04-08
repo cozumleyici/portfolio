@@ -825,6 +825,7 @@ const AdminPanel = () => {
                         <li>• ExcelArama.zip - <a href="/ExcelArama.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
                         <li>• ExcelAramaLink.zip - <a href="/ExcelAramaLink.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
                         <li>• TespitKontrol.zip - <a href="/TespitKontrol.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                        <li>• YalovaCBS.zip - <a href="/YalovaCBS.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
                       </ul>
                     </div>
                   </div>

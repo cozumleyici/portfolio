@@ -13,7 +13,8 @@ export const portfolioData = {
     vers_kontroluBillboard: "1.0.0.29",
     vers_kontroluCBS: "1.0.0.2",
     vers_kontroluExcelArama: "1.0.0.8",
-    vers_kontroluTespitKontrol: "1.0.0.33"
+    vers_kontroluTespitKontrol: "1.0.0.33",
+    YalovaCBS: "Yeni CBS uygulaması eklendi"
   },
   about: {
     title: "Hakkımda",
