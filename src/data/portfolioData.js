@@ -8,6 +8,13 @@ export const portfolioData = {
       { text: "Bana Ulaş", href: "#contact" }
     ]
   },
+  files: {
+    vers_kontrolu: "1.0.0",
+    vers_kontroluBillboard: "1.0.0",
+    vers_kontroluCBS: "1.0.0",
+    vers_kontroluExcelArama: "1.0.0",
+    vers_kontroluTespitKontrol: "1.0.0"
+  },
   about: {
     title: "Hakkımda",
     description: "Yazılım geliştirmeye olan tutkum, kullanıcı odaklı ve performanslı web uygulamaları oluşturmayı hedefliyorum. Frontend ve backend teknolojilerinde derinlemesine uzmanlıkla, karmaşık problemlere elegant çözümler sunuyorum. 5+ yıllık deneyimimle, startup'lardan enterprise seviye projelere kadar çeşitli ölçeklerde uygulamalar geliştirdim.",

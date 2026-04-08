@@ -199,7 +199,8 @@ const AdminPanel = () => {
     { id: 'skills', name: 'Yetenekler', icon: '💡' },
     { id: 'projects', name: 'Projeler', icon: '🚀' },
     { id: 'experience', name: 'Deneyim', icon: '💼' },
-    { id: 'contact', name: 'İletişim', icon: '📧' }
+    { id: 'contact', name: 'İletişim', icon: '📧' },
+    { id: 'files', name: 'Dosyalar', icon: '📁' }
   ];
 
   return (
@@ -735,6 +736,96 @@ const AdminPanel = () => {
                 </div>
               )}
             </>
+          )}
+
+          {activeTab === 'files' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold gradient-text">Dosya Yönetimi</h2>
+              
+              <div className="space-y-4">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4">TXT Dosyaları</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Versiyon Kontrolü
+                      </label>
+                      <textarea
+                        value={tempData.files?.vers_kontrolu || ''}
+                        onChange={(e) => handleEdit('files', 'vers_kontrolu', e.target.value)}
+                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        rows={3}
+                        placeholder="Versiyon kontrolü içeriği..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Billboard Versiyon Kontrolü
+                      </label>
+                      <textarea
+                        value={tempData.files?.vers_kontroluBillboard || ''}
+                        onChange={(e) => handleEdit('files', 'vers_kontroluBillboard', e.target.value)}
+                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        rows={3}
+                        placeholder="Billboard versiyon kontrolü içeriği..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        CBS Versiyon Kontrolü
+                      </label>
+                      <textarea
+                        value={tempData.files?.vers_kontroluCBS || ''}
+                        onChange={(e) => handleEdit('files', 'vers_kontroluCBS', e.target.value)}
+                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        rows={3}
+                        placeholder="CBS versiyon kontrolü içeriği..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Excel Arama Versiyon Kontrolü
+                      </label>
+                      <textarea
+                        value={tempData.files?.vers_kontroluExcelArama || ''}
+                        onChange={(e) => handleEdit('files', 'vers_kontroluExcelArama', e.target.value)}
+                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        rows={3}
+                        placeholder="Excel arama versiyon kontrolü içeriği..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Tespit Kontrol Versiyon Kontrolü
+                      </label>
+                      <textarea
+                        value={tempData.files?.vers_kontroluTespitKontrol || ''}
+                        onChange={(e) => handleEdit('files', 'vers_kontroluTespitKontrol', e.target.value)}
+                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        rows={3}
+                        placeholder="Tespit kontrol versiyon kontrolü içeriği..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4">ZIP Dosyaları</h3>
+                  <div className="space-y-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mb-2">ZIP dosyaları doğrudan URL ile erişilebilir:</p>
+                      <ul className="space-y-1">
+                        <li>• BillboardReklam.zip - <a href="/BillboardReklam.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                        <li>• DosyaArsivlemeZip.zip - <a href="/DosyaArsivlemeZip.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                        <li>• ExcelArama.zip - <a href="/ExcelArama.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                        <li>• ExcelAramaLink.zip - <a href="/ExcelAramaLink.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                        <li>• TespitKontrol.zip - <a href="/TespitKontrol.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
