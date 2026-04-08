@@ -85,29 +85,35 @@ const AdminPanel = () => {
 
   const handleSave = async () => {
     try {
-      if (typeof window !== 'undefined') {
-        // Önce mevcut veriyi al
-        const currentData = JSON.parse(localStorage.getItem('portfolioData') || '{}');
-        
-        // Files verisini güncelle
-        const updatedData = {
-          ...currentData,
-          files: tempData.files
+      console.log('handleSave called, tempData.files:', tempData.files);
+      
+      // TXT dosyalarýný download et
+      if (tempData.files) {
+        const fileContents = {
+          'vers_kontrolu.txt': tempData.files.vers_kontrolu || '1.0.0.1',
+          'vers_kontroluBillboard.txt': tempData.files.vers_kontroluBillboard || '1.0.0.29',
+          'vers_kontroluCBS.txt': tempData.files.vers_kontroluCBS || '1.0.0.2',
+          'vers_kontroluExcelArama.txt': tempData.files.vers_kontroluExcelArama || '1.0.0.8',
+          'vers_kontroluTespitKontrol.txt': tempData.files.vers_kontroluTespitKontrol || '1.0.0.33'
         };
+
+        // Her dosyayý ayrý ayrý localStorage'a kaydet
+        Object.entries(fileContents).forEach(([filename, content]) => {
+          localStorage.setItem(`txt_${filename}`, content);
+          console.log(`Saved ${filename}:`, content);
+        });
+
+        // Tüm veriyi de kaydet (backup)
+        localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        // Kaydet
-        localStorage.setItem('portfolioData', JSON.stringify(updatedData));
+        alert('TXT dosyalarý baþarýyla kaydedildi! Dosyalar download edilebilir.');
         
-        // Doðrula
-        const saved = localStorage.getItem('portfolioData');
-        console.log('Saved data:', saved);
+        // Download linkleri göster
+        const downloadLinks = Object.keys(fileContents).map(filename => 
+          `${filename}: /${filename}`
+        ).join('\n');
         
-        alert('Deðiþiklikler baþarýyla kaydedildi!');
-        
-        // Sayfayý yenile
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        console.log('Download links:', downloadLinks);
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
