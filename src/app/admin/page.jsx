@@ -86,9 +86,16 @@ const AdminPanel = () => {
 
   const handleSave = async () => {
     try {
+      console.log('handleSave called, current tempData:', tempData);
       if (typeof window !== 'undefined') {
         // tempData'yi localStorage'a kaydet
-        localStorage.setItem('portfolioData', JSON.stringify(tempData));
+        const dataString = JSON.stringify(tempData);
+        console.log('Saving to localStorage:', dataString);
+        localStorage.setItem('portfolioData', dataString);
+        
+        // Verify it was saved
+        const saved = localStorage.getItem('portfolioData');
+        console.log('Verified saved data:', saved);
         
         // Custom event tetikle
         window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
@@ -103,7 +110,9 @@ const AdminPanel = () => {
   };
 
   const handleEdit = (section, field, value) => {
+    console.log('handleEdit called:', { section, field, value });
     setTempData(prev => {
+      console.log('Previous tempData:', prev);
       const newData = { ...prev };
       if (!newData[section]) {
         newData[section] = {};
@@ -112,6 +121,7 @@ const AdminPanel = () => {
         ...newData[section],
         [field]: value
       };
+      console.log('New tempData:', newData);
       return newData;
     });
   };
