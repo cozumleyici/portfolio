@@ -9,37 +9,57 @@ const updateAndDeploy = () => {
   try {
     console.log('Starting TXT files update and deploy...');
     
-    // Git operations
+    // Önce git status kontrol et
     return new Promise((resolve, reject) => {
-      exec('git add .', { cwd: projectDir }, (error, stdout, stderr) => {
+      exec('git status --porcelain', { cwd: projectDir }, (error, stdout, stderr) => {
         if (error) {
-          console.error('Git add error:', error);
+          console.error('Git status error:', error);
           reject(error);
           return;
         }
         
-        console.log('Git add completed');
+        console.log('Git status output:', stdout);
         
-        exec('git commit -m "Update TXT files via admin panel"', { cwd: projectDir }, (error, stdout, stderr) => {
+        // Deðiþiklik yoksa deploy yapma
+        if (!stdout.trim()) {
+          console.log('No changes to commit. Nothing to deploy.');
+          resolve('No changes to deploy.');
+          return;
+        }
+        
+        // Deðiþiklik varsa git add yap
+        exec('git add .', { cwd: projectDir }, (error, stdout, stderr) => {
           if (error) {
-            console.error('Git commit error:', error);
+            console.error('Git add error:', error);
             reject(error);
             return;
           }
           
-          console.log('Git commit completed');
+          console.log('Git add completed');
           
-          exec('git push origin main', { cwd: projectDir }, (error, stdout, stderr) => {
+          exec('git commit -m "Update TXT files via admin panel"', { cwd: projectDir }, (error, stdout, stderr) => {
             if (error) {
-              console.error('Git push error:', error);
+              console.error('Git commit error:', error);
+              console.error('Stderr:', stderr);
               reject(error);
               return;
             }
             
-            console.log('Git push completed');
-            console.log('Successfully pushed to GitHub!');
-            console.log('Vercel will automatically deploy the changes.');
-            resolve('Deploy successful!');
+            console.log('Git commit completed');
+            
+            exec('git push origin main', { cwd: projectDir }, (error, stdout, stderr) => {
+              if (error) {
+                console.error('Git push error:', error);
+                console.error('Stderr:', stderr);
+                reject(error);
+                return;
+              }
+              
+              console.log('Git push completed');
+              console.log('Successfully pushed to GitHub!');
+              console.log('Vercel will automatically deploy changes.');
+              resolve('Deploy successful!');
+            });
           });
         });
       });
@@ -54,7 +74,7 @@ const updateAndDeploy = () => {
 // Script'i doðrudan çalýþtýr
 updateAndDeploy()
   .then(() => {
-    console.log('TXT files updated and deployed successfully!');
+    console.log('TXT files update process completed!');
   })
   .catch((error) => {
     console.error('Error:', error);
