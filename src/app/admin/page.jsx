@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSave, FaEye, FaEdit, FaTrash, FaPlus, FaTimes, FaBars } from 'react-icons/fa';
 import { portfolioData } from '@/data/portfolioData';
 
@@ -11,43 +11,45 @@ const AdminPanel = () => {
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [activeTab, setActiveTab] = useState('hero');
   const [editMode, setEditMode] = useState({});
+  const [tempData, setTempData] = useState(portfolioData);
+  const [showPreview, setShowPreview] = useState(false);
   
-  // localStorage'dan kaydedilen veriyi al veya varsayýlaný kullan
-  const getSavedData = () => {
+  // Login state'i
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Component mount oldugunda localStorage'dan verileri yükle
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('portfolioData');
-      if (saved) {
-        const parsedData = JSON.parse(saved);
-        // Her zaman PortfolioData'dan güncel files verisini al
-        parsedData.files = portfolioData.files;
-        return parsedData;
+      // Login durumunu kontrol et
+      const loginStatus = localStorage.getItem('adminLoggedIn');
+      if (loginStatus === 'true') {
+        setIsLoggedIn(true);
+      }
+
+      // Portfolio verilerini yükle
+      const savedData = localStorage.getItem('portfolioData');
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          setTempData(parsed);
+        } catch (error) {
+          console.error('localStorage verisi okunamadý:', error);
+          setTempData(portfolioData);
+        }
       }
     }
-    return JSON.parse(JSON.stringify(portfolioData));
-  };
-
-  // Login durumunu localStorage'dan kontrol et
-  const checkLoginStatus = () => {
-    if (typeof window !== 'undefined') {
-      const savedLoginStatus = localStorage.getItem('adminLoggedIn');
-      return savedLoginStatus === 'true';
-    }
-    return false;
-  };
-  
-  const [tempData, setTempData] = useState(getSavedData());
-  const [showPreview, setShowPreview] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(checkLoginStatus());
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
     const savedPassword = typeof window !== 'undefined' ? (localStorage.getItem('adminPassword') || 'admin123') : 'admin123';
     if (password === savedPassword) {
       setIsLoggedIn(true);
-      // Login durumunu localStorage'da kaydet
+      // Login durumunu kaydet
       if (typeof window !== 'undefined') {
         localStorage.setItem('adminLoggedIn', 'true');
       }
+      setPassword('');
     } else {
       alert('Yanlýþ þifre!');
     }
@@ -57,7 +59,7 @@ const AdminPanel = () => {
     setIsLoggedIn(false);
     setPassword('');
     setShowPasswordChange(false);
-    // Login durumunu localStorage'dan sil
+    // Login durumunu sil
     if (typeof window !== 'undefined') {
       localStorage.setItem('adminLoggedIn', 'false');
     }
@@ -67,17 +69,16 @@ const AdminPanel = () => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       alert('Þifreler eþleþmiyor!');
-      alert('Şifreler eşleşmiyor!');
       return;
     }
     if (newPassword.length < 4) {
-      alert('Şifre en az 4 karakter olmalı!');
+      alert('Þifre en az 4 karakter olmalý!');
       return;
     }
     if (typeof window !== 'undefined') {
       localStorage.setItem('adminPassword', newPassword);
     }
-    alert('Şifre başarıyla değiştirildi!');
+    alert('Þifre baþarýyla deðiþtirildi!');
     setNewPassword('');
     setConfirmPassword('');
     setShowPasswordChange(false);
@@ -85,15 +86,14 @@ const AdminPanel = () => {
 
   const handleSave = async () => {
     try {
-      // localStorage'a kaydet
       if (typeof window !== 'undefined') {
-        // tempData'yi dogrudan kaydet - files verisi zaten içinde
+        // tempData'yi localStorage'a kaydet
         localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        // Custom storage event'i tetikle (diðer component'lerin güncellenmesi için)
+        // Custom event tetikle
         window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: tempData }));
         
-        console.log('Veriler localStorage\'a kaydedildi:', tempData);
+        console.log('Kaydedilen veriler:', tempData);
         alert('Deðiþiklikler baþarýyla kaydedildi!');
       }
     } catch (error) {
@@ -103,13 +103,17 @@ const AdminPanel = () => {
   };
 
   const handleEdit = (section, field, value) => {
-    setTempData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
+    setTempData(prev => {
+      const newData = { ...prev };
+      if (!newData[section]) {
+        newData[section] = {};
       }
-    }));
+      newData[section] = {
+        ...newData[section],
+        [field]: value
+      };
+      return newData;
+    });
   };
 
   const handleNestedEdit = (section, index, field, value) => {
@@ -130,7 +134,7 @@ const AdminPanel = () => {
     const newProject = {
       id: Date.now(),
       title: "Yeni Proje",
-      description: "Proje açıklaması",
+      description: "Proje açýklamasý",
       image: "/images/project-new.jpg",
       technologies: ["React", "Node.js"],
       github: "https://github.com/",
@@ -143,7 +147,7 @@ const AdminPanel = () => {
   };
 
   const deleteProject = (index) => {
-    if (confirm('Bu projeyi silmek istediğinizden emin misiniz?')) {
+    if (window.confirm('Bu projeyi silmek istediðinizden emin misiniz?')) {
       setTempData(prev => ({
         ...prev,
         projects: prev.projects.filter((_, i) => i !== index)
@@ -154,11 +158,11 @@ const AdminPanel = () => {
   const addExperience = () => {
     const newExperience = {
       id: Date.now(),
-      title: "Yeni Pozisyon",
-      company: "Şirket Adı",
-      period: "2024 - Present",
-      description: "İş tanımı",
-      achievements: ["Başarı 1", "Başarı 2"]
+      title: "Yeni Deneyim",
+      company: "Þirket Adý",
+      period: "2024",
+      description: "Deneyim açýklamasý",
+      achievements: ["Baþarý 1", "Baþarý 2"]
     };
     setTempData(prev => ({
       ...prev,
@@ -167,13 +171,23 @@ const AdminPanel = () => {
   };
 
   const deleteExperience = (index) => {
-    if (confirm('Bu deneyimi silmek istediğinizden emin misiniz?')) {
+    if (window.confirm('Bu deneyimi silmek istediðinizden emin misiniz?')) {
       setTempData(prev => ({
         ...prev,
         experience: prev.experience.filter((_, i) => i !== index)
       }));
     }
   };
+
+  const tabs = [
+    { id: 'hero', name: 'Hero', icon: 'ð' },
+    { id: 'about', name: 'Hakkýmda', icon: 'ð' },
+    { id: 'skills', name: 'Yetenekler', icon: 'â¡' },
+    { id: 'projects', name: 'Projeler', icon: 'ð' },
+    { id: 'experience', name: 'Deneyim', icon: 'ð¼' },
+    { id: 'contact', name: 'Ýletiþim', icon: 'ð§' },
+    { id: 'files', name: 'Dosyalar', icon: 'ð' }
+  ];
 
   if (!isLoggedIn) {
     return (
