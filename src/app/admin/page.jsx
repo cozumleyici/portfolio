@@ -97,23 +97,28 @@ const AdminPanel = () => {
           'vers_kontroluTespitKontrol.txt': tempData.files.vers_kontroluTespitKontrol || '1.0.0.33'
         };
 
-        // Her dosyayý ayrý ayrý localStorage'a kaydet
+        // Her dosyayý ayrý ayrý download et
         Object.entries(fileContents).forEach(([filename, content]) => {
-          localStorage.setItem(`txt_${filename}`, content);
-          console.log(`Saved ${filename}:`, content);
+          // Blob oluþtur
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          
+          // Download linki oluþtur
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          console.log(`Downloaded ${filename}:`, content);
         });
 
-        // Tüm veriyi de kaydet (backup)
+        // Veriyi localStorage'a da kaydet (backup)
         localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        alert('TXT dosyalarý baþarýyla kaydedildi! Dosyalar download edilebilir.');
-        
-        // Download linkleri göster
-        const downloadLinks = Object.keys(fileContents).map(filename => 
-          `${filename}: /${filename}`
-        ).join('\n');
-        
-        console.log('Download links:', downloadLinks);
+        alert('TXT dosyalarý baþarýyla download edildi! Dosyalarý bilgisayarýnýza kaydedin.');
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
