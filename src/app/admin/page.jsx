@@ -86,8 +86,28 @@ const AdminPanel = () => {
   const handleSave = async () => {
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('portfolioData', JSON.stringify(tempData));
+        // Önce mevcut veriyi al
+        const currentData = JSON.parse(localStorage.getItem('portfolioData') || '{}');
+        
+        // Files verisini güncelle
+        const updatedData = {
+          ...currentData,
+          files: tempData.files
+        };
+        
+        // Kaydet
+        localStorage.setItem('portfolioData', JSON.stringify(updatedData));
+        
+        // Doðrula
+        const saved = localStorage.getItem('portfolioData');
+        console.log('Saved data:', saved);
+        
         alert('Deðiþiklikler baþarýyla kaydedildi!');
+        
+        // Sayfayý yenile
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
