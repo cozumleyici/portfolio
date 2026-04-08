@@ -9,11 +9,11 @@ export const portfolioData = {
     ]
   },
   files: {
-    vers_kontrolu: "1.0.0",
-    vers_kontroluBillboard: "1.0.0",
-    vers_kontroluCBS: "1.0.0",
-    vers_kontroluExcelArama: "1.0.0",
-    vers_kontroluTespitKontrol: "1.0.0"
+    vers_kontrolu: "1.0.0.1",
+    vers_kontroluBillboard: "1.0.0.29",
+    vers_kontroluCBS: "1.0.0.2",
+    vers_kontroluExcelArama: "1.0.0.8",
+    vers_kontroluTespitKontrol: "1.0.0.33"
   },
   about: {
     title: "Hakkımda",
