@@ -44,7 +44,6 @@ const toggleTheme = () => {
     { name: 'Projeler', href: '#projects' },
     { name: 'Deneyim', href: '#experience' },
     { name: 'İletişim', href: '#contact' },
-    { name: 'Dosyalar', href: '/files' },
     { name: 'Admin', href: '/admin' }
   ];
 
