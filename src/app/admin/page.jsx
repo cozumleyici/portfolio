@@ -13,11 +13,20 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('hero');
   const [editMode, setEditMode] = useState({});
   
-  // localStorage'dan kayıtlı veriyi al veya varsayılanı kullan
+  // localStorage'dan kaydedilen veriyi al veya varsayýlaný kullan
   const getSavedData = () => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('portfolioData');
-      return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(portfolioData));
+      if (saved) {
+        const parsedData = JSON.parse(saved);
+        // E localStorage'da files bölümü yoksa, portfolioData'dan ekle
+        if (!parsedData.files) {
+          parsedData.files = portfolioData.files;
+          // localStorage'ý güncelle
+          localStorage.setItem('portfolioData', JSON.stringify(parsedData));
+        }
+        return parsedData;
+      }
     }
     return JSON.parse(JSON.stringify(portfolioData));
   };
