@@ -21,21 +21,20 @@ const AdminPanel = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Login durumunu kontrol et
-      const loginStatus = localStorage.getItem('adminLoggedIn');
-      if (loginStatus === 'true') {
-        setIsLoggedIn(true);
-      }
+      try {
+        const loginStatus = localStorage.getItem('adminLoggedIn');
+        if (loginStatus === 'true') {
+          setIsLoggedIn(true);
+        }
 
-      // Portfolio verilerini yükle
-      const savedData = localStorage.getItem('portfolioData');
-      if (savedData) {
-        try {
+        // Portfolio verilerini yükle
+        const savedData = localStorage.getItem('portfolioData');
+        if (savedData) {
           const parsed = JSON.parse(savedData);
           setTempData(parsed);
-        } catch (error) {
-          console.error('localStorage verisi okunamadý:', error);
-          setTempData(portfolioData);
         }
+      } catch (error) {
+        console.error('localStorage error:', error);
       }
     }
   }, []);
@@ -86,18 +85,8 @@ const AdminPanel = () => {
 
   const handleSave = async () => {
     try {
-      console.log('handleSave called, current tempData:', tempData);
       if (typeof window !== 'undefined') {
-        // tempData'yi localStorage'a kaydet
-        const dataString = JSON.stringify(tempData);
-        console.log('Saving to localStorage:', dataString);
-        localStorage.setItem('portfolioData', dataString);
-        
-        // Verify it was saved
-        const saved = localStorage.getItem('portfolioData');
-        console.log('Verified saved data:', saved);
-        
-        console.log('Kaydedilen veriler:', tempData);
+        localStorage.setItem('portfolioData', JSON.stringify(tempData));
         alert('Deðiþiklikler baþarýyla kaydedildi!');
       }
     } catch (error) {
@@ -107,9 +96,7 @@ const AdminPanel = () => {
   };
 
   const handleEdit = (section, field, value) => {
-    console.log('handleEdit called:', { section, field, value });
     setTempData(prev => {
-      console.log('Previous tempData:', prev);
       const newData = { ...prev };
       if (!newData[section]) {
         newData[section] = {};
@@ -118,7 +105,6 @@ const AdminPanel = () => {
         ...newData[section],
         [field]: value
       };
-      console.log('New tempData:', newData);
       return newData;
     });
   };
