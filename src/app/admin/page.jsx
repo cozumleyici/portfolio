@@ -41,8 +41,14 @@ const AdminPanel = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    console.log('handleLogin called');
+    console.log('password:', password);
+    
     const savedPassword = typeof window !== 'undefined' ? (localStorage.getItem('adminPassword') || 'admin123') : 'admin123';
+    console.log('savedPassword:', savedPassword);
+    
     if (password === savedPassword) {
+      console.log('Login successful');
       setIsLoggedIn(true);
       // Login durumunu kaydet
       if (typeof window !== 'undefined') {
@@ -50,6 +56,7 @@ const AdminPanel = () => {
       }
       setPassword('');
     } else {
+      console.log('Login failed');
       alert('Yanlýþ þifre!');
     }
   };
