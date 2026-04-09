@@ -12,7 +12,6 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('hero');
   const [editMode, setEditMode] = useState({});
   const [tempData, setTempData] = useState(portfolioData);
-  const [showPreview, setShowPreview] = useState(false);
   
   // Login state'i
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -309,14 +308,6 @@ const AdminPanel = () => {
               </button>
               
               <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <FaEye size={14} />
-                {showPreview ? 'Düzenle' : 'Önizleme'}
-              </button>
-              
-              <button
                 onClick={handleSave}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
@@ -356,75 +347,14 @@ const AdminPanel = () => {
         </div>
 
         <div className="flex-1 p-8">
-          {showPreview ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold mb-4 gradient-text">Önizleme</h2>
-              <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto">
-                {JSON.stringify(tempData, null, 2)}
-              </pre>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold mb-4 gradient-text">Admin Paneli</h2>
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p className="mb-4">TXT dosyaları GitHub üzerinden yönetilmektedir.</p>
+              <p className="text-sm">GitHub reposundan düzenleyebilirsiniz.</p>
             </div>
-          ) : showPasswordChange ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-md mx-auto">
-              <h2 className="text-2xl font-bold mb-4 gradient-text">Şifre Değiştir</h2>
-              <form onSubmit={handlePasswordChange} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Yeni Şifre
-                  </label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                    placeholder="Yeni şifrenizi girin"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Şifre Tekrarı
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                    placeholder="Şifrenizi tekrar girin"
-                    required
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                  >
-                    Şifreyi Değiştir
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordChange(false)}
-                    className="flex-1 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    İptal
-                  </button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <>
-              {activeTab === 'hero' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold gradient-text">Hero Bölümü</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Ad
-                      </label>
-                      <input
-                        type="text"
-                        value={tempData.hero.name}
-                        onChange={(e) => handleEdit('hero', 'name', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+          </div>
+        </div>
                       />
                     </div>
                     <div>
