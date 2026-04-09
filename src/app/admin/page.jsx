@@ -87,26 +87,29 @@ const AdminPanel = () => {
     try {
       console.log('handleSave called, tempData.files:', tempData.files);
       
-      // TXT dosyalarýný localStorage'a kaydet
       if (tempData.files) {
-        const fileContents = {
-          'vers_kontrolu.txt': tempData.files.vers_kontrolu || '1.0.0.1',
-          'vers_kontroluBillboard.txt': tempData.files.vers_kontroluBillboard || '1.0.0.29',
-          'vers_kontroluCBS.txt': tempData.files.vers_kontroluCBS || '1.0.0.2',
-          'vers_kontroluExcelArama.txt': tempData.files.vers_kontroluExcelArama || '1.0.0.8',
-          'vers_kontroluTespitKontrol.txt': tempData.files.vers_kontroluTespitKontrol || '1.0.0.33'
-        };
-
-        // Her dosyayý ayrý ayrý localStorage'a kaydet
-        Object.entries(fileContents).forEach(([filename, content]) => {
-          localStorage.setItem(`txt_${filename}`, content);
-          console.log(`Saved ${filename}:`, content);
+        // API endpoint'e gönder
+        const response = await fetch('/api/update-txt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ files: tempData.files }),
         });
-
-        // Tüm veriyi de kaydet (backup)
-        localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        alert('TXT dosyalarý baþarýyla kaydedildi! Download ve Upload butonlarýný kullanabilirsiniz.');
+        if (response.ok) {
+          const result = await response.json();
+          console.log('API Response:', result);
+          
+          // localStorage'a da kaydet (backup)
+          localStorage.setItem('portfolioData', JSON.stringify(tempData));
+          
+          alert('TXT dosyalarý baþarýyla güncellendi! Deðiþiklikler anýnda yayýnlandý.');
+        } else {
+          const error = await response.json();
+          console.error('API Error:', error);
+          alert('TXT dosyalarý güncellenemedi: ' + error.error);
+        }
       }
     } catch (error) {
       console.error('Kaydetme hatasý:', error);
