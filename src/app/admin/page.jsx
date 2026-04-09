@@ -255,16 +255,16 @@ const AdminPanel = () => {
         experience: prev.experience.filter((_, i) => i !== index)
       }));
     }
-  };
+  }
 
   const tabs = [
-    { id: 'hero', name: 'Hero', icon: 'ð' },
-    { id: 'about', name: 'Hakkýmda', icon: 'ð' },
-    { id: 'skills', name: 'Yetenekler', icon: 'â¡' },
-    { id: 'projects', name: 'Projeler', icon: 'ð' },
-    { id: 'experience', name: 'Deneyim', icon: 'ð¼' },
-    { id: 'contact', name: 'Ýletiþim', icon: 'ð§' },
-    { id: 'files', name: 'Dosyalar', icon: 'ð' }
+    { id: 'hero', name: 'Hero', icon: '👤' },
+    { id: 'about', name: 'Hakkımda', icon: '📝' },
+    { id: 'skills', name: 'Yetenekler', icon: '💡' },
+    { id: 'projects', name: 'Projeler', icon: '🚀' },
+    { id: 'experience', name: 'Deneyim', icon: '💼' },
+    { id: 'contact', name: 'İletişim', icon: '📧' },
+    { id: 'files', name: 'Dosyalar', icon: '📁' }
   ];
 
   if (!isLoggedIn) {
@@ -308,16 +308,6 @@ const AdminPanel = () => {
       </div>
     );
   }
-
-  const tabs = [
-    { id: 'hero', name: 'Hero', icon: '👤' },
-    { id: 'about', name: 'Hakkımda', icon: '📝' },
-    { id: 'skills', name: 'Yetenekler', icon: '💡' },
-    { id: 'projects', name: 'Projeler', icon: '🚀' },
-    { id: 'experience', name: 'Deneyim', icon: '💼' },
-    { id: 'contact', name: 'İletişim', icon: '📧' },
-    { id: 'files', name: 'Dosyalar', icon: '📁' }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
