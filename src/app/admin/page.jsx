@@ -95,30 +95,11 @@ const AdminPanel = () => {
       console.log('handleSave called, tempData.files:', tempData.files);
       
       if (tempData.files) {
-        console.log('Sending API request to /api/update-txt');
+        // localStorage'a kaydet
+        localStorage.setItem('portfolioData', JSON.stringify(tempData));
         
-        // API endpoint'e gönder
-        const response = await fetch('/api/update-txt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ files: tempData.files }),
-        });
-        
-        console.log('API response status:', response.status);
-        console.log('API response ok:', response.ok);
-        
-        if (response.ok) {
-          const result = await response.json();
-          console.log('API Response:', result);
-          
-          alert('TXT dosyaları başarıyla güncellendi! Değişiklikler anında yayınlandı.');
-        } else {
-          const error = await response.json();
-          console.error('API Error:', error);
-          alert('TXT dosyaları güncellenemedi: ' + error.error);
-        }
+        console.log('Veriler localStorage\'a kaydedildi');
+        alert('TXT dosyalarý kaydedildi! Download butonlarý ile dosyalarý indirebilir, düzenleyip tekrar yükleyebilirsiniz.');
       } else {
         console.log('No files data to save');
       }
