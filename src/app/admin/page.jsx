@@ -829,157 +829,52 @@ const AdminPanel = () => {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold gradient-text">Dosya Yönetimi</h2>
               
-              <div className="space-y-4">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4">TXT Dosyaları</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Versiyon Kontrolü
-                      </label>
-                      <textarea
-                        value={tempData.files?.vers_kontrolu || ''}
-                        onChange={(e) => handleEdit('files', 'vers_kontrolu', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows="3"
-                        placeholder="Versiyon numarasý girin..."
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleDownloadFile('vers_kontrolu.txt')}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleUploadFile('vers_kontrolu.txt')}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                        >
-                          Upload
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Billboard Versiyon Kontrolü
-                      </label>
-                      <textarea
-                        value={tempData.files?.vers_kontroluBillboard || ''}
-                        onChange={(e) => handleEdit('files', 'vers_kontroluBillboard', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows="3"
-                        placeholder="Billboard versiyon kontrolü içeriği..."
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleDownloadFile('vers_kontroluBillboard.txt')}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleUploadFile('vers_kontroluBillboard.txt')}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                        >
-                          Upload
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        CBS Versiyon Kontrolü
-                      </label>
-                      <textarea
-                        value={tempData.files?.vers_kontroluCBS || ''}
-                        onChange={(e) => handleEdit('files', 'vers_kontroluCBS', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows="3"
-                        placeholder="CBS versiyon kontrolü içeriği..."
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleDownloadFile('vers_kontroluCBS.txt')}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleUploadFile('vers_kontroluCBS.txt')}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                        >
-                          Upload
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Excel Arama Versiyon Kontrolü
-                      </label>
-                      <textarea
-                        value={tempData.files?.vers_kontroluExcelArama || ''}
-                        onChange={(e) => handleEdit('files', 'vers_kontroluExcelArama', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows="3"
-                        placeholder="Excel arama versiyon kontrolü içeriği..."
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleDownloadFile('vers_kontroluExcelArama.txt')}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleUploadFile('vers_kontroluExcelArama.txt')}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                        >
-                          Upload
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Tespit Kontrol Versiyon Kontrolü
-                      </label>
-                      <textarea
-                        value={tempData.files?.vers_kontroluTespitKontrol || ''}
-                        onChange={(e) => handleEdit('files', 'vers_kontroluTespitKontrol', e.target.value)}
-                        className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        rows="3"
-                        placeholder="Tespit kontrol versiyon kontrolü içeriği..."
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleDownloadFile('vers_kontroluTespitKontrol.txt')}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleUploadFile('vers_kontroluTespitKontrol.txt')}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                        >
-                          Upload
-                        </button>
-                      </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">TXT Dosyaları</h3>
+                <div className="space-y-4">
+                  <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                    <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">⚠️ TXT Dosyaları GitHub Üzerinden Yönetiliyor</h4>
+                    <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
+                      <p>📝 <strong>GitHub'dan düzenleme:</strong></p>
+                      <ul className="ml-4 list-disc">
+                        <li>GitHub reposuna gidin: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">https://github.com/cozumleyici/portfolio</code></li>
+                        <li><code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">public/</code> klasöründeki TXT dosyalarını düzenleyin</li>
+                        <li>Değişiklikleri commit edin</li>
+                        <li>Vercel otomatik deploy eder</li>
+                      </ul>
+                      <p>🔄 <strong>Güncelleme süreci:</strong></p>
+                      <ol className="ml-4 list-decimal">
+                        <li>GitHub'da TXT dosyasını düzenle</li>
+                        <li>Commit: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">git add . && git commit -m "Update TXT files"</code></li>
+                        <li>Push: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">git push origin main</code></li>
+                        <li>Vercel otomatik yayınlar (1-2 dakika)</li>
+                      </ol>
+                      <p>📁 <strong>Mevcut TXT Dosyaları:</strong></p>
+                      <ul className="ml-4 list-disc">
+                        <li><a href="https://birols.com/vers_kontrolu.txt" target="_blank" className="text-blue-600 hover:text-blue-800 underline">vers_kontrolu.txt</a></li>
+                        <li><a href="https://birols.com/vers_kontroluBillboard.txt" target="_blank" className="text-blue-600 hover:text-blue-800 underline">vers_kontroluBillboard.txt</a></li>
+                        <li><a href="https://birols.com/vers_kontroluCBS.txt" target="_blank" className="text-blue-600 hover:text-blue-800 underline">vers_kontroluCBS.txt</a></li>
+                        <li><a href="https://birols.com/vers_kontroluExcelArama.txt" target="_blank" className="text-blue-600 hover:text-blue-800 underline">vers_kontroluExcelArama.txt</a></li>
+                        <li><a href="https://birols.com/vers_kontroluTespitKontrol.txt" target="_blank" className="text-blue-600 hover:text-blue-800 underline">vers_kontroluTespitKontrol.txt</a></li>
+                      </ul>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4">ZIP Dosyaları</h3>
-                  <div className="space-y-4">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <p className="mb-2">ZIP dosyaları doğrudan URL ile erişilebilir:</p>
-                      <ul className="space-y-1">
-                        <li>• BillboardReklam.zip - <a href="/BillboardReklam.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                        <li>• DosyaArsivlemeZip.zip - <a href="/DosyaArsivlemeZip.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                        <li>• ExcelArama.zip - <a href="/ExcelArama.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                        <li>• ExcelAramaLink.zip - <a href="/ExcelAramaLink.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                        <li>• TespitKontrol.zip - <a href="/TespitKontrol.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                        <li>• YalovaCBS.zip - <a href="/YalovaCBS.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
-                      </ul>
-                    </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">ZIP Dosyaları</h3>
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mb-2">ZIP dosyaları doğrudan URL ile erişilebilir:</p>
+                    <ul className="space-y-1">
+                      <li>• BillboardReklam.zip - <a href="/BillboardReklam.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      <li>• DosyaArsivlemeZip.zip - <a href="/DosyaArsivlemeZip.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      <li>• ExcelArama.zip - <a href="/ExcelArama.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      <li>• ExcelAramaLink.zip - <a href="/ExcelAramaLink.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      <li>• TespitKontrol.zip - <a href="/TespitKontrol.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                      <li>• YalovaCBS.zip - <a href="/YalovaCBS.zip" target="_blank" className="text-blue-600 hover:underline">İndir</a></li>
+                    </ul>
                   </div>
                 </div>
               </div>
