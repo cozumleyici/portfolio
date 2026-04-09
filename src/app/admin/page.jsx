@@ -113,14 +113,11 @@ const AdminPanel = () => {
           const result = await response.json();
           console.log('API Response:', result);
           
-          // localStorage'a da kaydet (backup)
-          localStorage.setItem('portfolioData', JSON.stringify(tempData));
-          
-          alert('TXT dosyalarý baþarýyla güncellendi! Deðiþiklikler anýnda yayýnlandý.');
+          alert('TXT dosyaları başarıyla güncellendi! Değişiklikler anında yayınlandı.');
         } else {
           const error = await response.json();
           console.error('API Error:', error);
-          alert('TXT dosyalarý güncellenemedi: ' + error.error);
+          alert('TXT dosyaları güncellenemedi: ' + error.error);
         }
       } else {
         console.log('No files data to save');
