@@ -1,140 +1,172 @@
-# BirolChat - Telegram Chat Widget
+# Birol Sanlı - Full Stack Developer Portfolyo
+
+Modern, responsive ve etkileyici bir Full Stack Developer portfolyo sitesi.
+
+## 🚀 Özellikler
+
+- ✅ **Modern Tasarım**: Tailwind CSS ile şık ve minimalist arayüz
+- ✅ **Responsive**: Mobil, tablet ve masaüstü cihazlarda mükemmel görünüm
+- ✅ **Dark/Light Mod**: Göz yorgunluğunu azaltan tema değiştirme
+- ✅ **Animasyonlar**: Framer Motion ile smooth geçişler ve mikro etkileşimler
+- ✅ **SEO Optimize**: Meta tag'ler ve semantic HTML
+- ✅ **Performans**: Next.js ile hızlı yükleme ve optimize edilmiş kod
+- ✅ **İletişim Formu**: Çalışan API endpoint ile mesaj gönderme
+
+## 🛠️ Teknoloji Yığını
+
+### Frontend
+- **Next.js 14** - React framework
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Animasyon library
+- **React Icons** - Icon library
+- **React Intersection Observer** - Scroll animasyonları
+
+### Backend
+- **Next.js API Routes** - Server-side functionality
+- **Node.js** - Runtime environment
+
+## 📁 Proje Yapısı
+
+```
+portfolio/
+├── src/
+│   ├── app/
+│   │   ├── api/contact/route.js     # İletişim formu API
+│   │   ├── globals.css              # Global stiller
+│   │   ├── layout.tsx               # Ana layout
+│   │   └── page.tsx                 # Ana sayfa
+│   ├── components/
+│   │   ├── Hero.jsx                 # Hero bölümü
+│   │   ├── About.jsx                # Hakkımda bölümü
+│   │   ├── Skills.jsx               # Yetenekler bölümü
+│   │   ├── Projects.jsx             # Projeler bölümü
+│   │   ├── Experience.jsx           # Deneyim bölümü
+│   │   ├── Contact.jsx              # İletişim bölümü
+│   │   ├── Navbar.jsx               # Navigasyon bar
+│   │   └── Footer.jsx               # Footer
+│   └── data/portfolioData.js        # Portfolyo verileri
+├── public/                          # Statik dosyalar
+├── birol-chat/                      # BirolChat Telegram Widget
+│   ├── birol-chat.js                # Widget JavaScript
+│   ├── birol-chat.php              # Backend PHP
+│   ├── admin.html                  # Admin panel
+│   ├── demo.html                   # Demo sayfası
+│   └── sessions/                   # Oturum verileri
+└── README.md                        # Proje dokümantasyonu
+```
+
+## 🚀 Kurulum ve Çalıştırma
+
+### Gereksinimler
+- Node.js 18+ 
+- npm veya yarn
+
+### Adımlar
+
+1. **Dependencies'leri yükle:**
+```bash
+npm install
+```
+
+2. **Geliştirme sunucusunu başlat:**
+```bash
+npm run dev
+```
+
+3. **Tarayıcıda aç:**
+```
+http://localhost:3000
+```
+
+## 🎯 Bölümler
+
+### 1. Hero Section
+- Kişisel tanıtım ve gradient animasyonlar
+- Sosyal medya linkleri ve CTA butonları
+
+### 2. About Section  
+- Profesyonel özet ve yetenekler
+- Değer önerileri ve profil görseli
+
+### 3. Skills Section
+- Kategorize edilmiş yetenekler (Frontend, Backend, Tools)
+- Animasyonlu progress bar'lar
+
+### 4. Projects Section
+- 6 adet örnek proje
+- Teknoloji etiketleri ve GitHub linkleri
+
+### 5. Experience Section
+- Timeline formatında deneyim
+- Şirket bilgileri ve başarılar
+
+### 6. Contact Section
+- İletişim formu ve sosyal medya linkleri
+- Form validasyonu ve API entegrasyonu
+
+## 📝 Özelleştirme
+
+Kişisel bilgileri `src/data/portfolioData.js` dosyasından düzenleyebilirsiniz:
+
+- Kişisel bilgiler
+- Proje verileri  
+- Deneyim bilgileri
+- Sosyal medya linkleri
+
+## 🎨 Stil Özelleştirme
+
+`src/app/globals.css` dosyasında:
+- Renk paleti ve CSS değişkenleri
+- Animasyonlar ve geçişler
+- Custom stiller
+
+## 📱 Responsive Tasarım
+
+- **Mobil**: 320px ve üzeri
+- **Tablet**: 768px ve üzeri  
+- **Desktop**: 1024px ve üzeri
+
+## 📧 İletişim Formu
+
+Form gönderimi için API endpoint:
+```
+POST /api/contact
+{
+  "name": "İsim",
+  "email": "email@example.com", 
+  "message": "Mesaj içeriği"
+}
+```
+
+## 💬 BirolChat - Telegram Widget
 
 Birols.com için özel Telegram tabanlı canlı destek widget'ı.
 
-## Özellikler
-
-- ✅ **Telegram Entegrasyonu**: Ziyaretçi mesajları Telegram'a düşer
-- ✅ **Admin Paneli**: Telegram'dan gelen link ile admin panelinden cevap verilebilir
-- ✅ **Ücretsiz**: Telegram Bot API kullanır (tamamen ücretsiz)
-- ✅ **Polling Tabanlı**: Webhook gerektirmez
-- ✅ **Oturum Yönetimi**: Her ziyaretçi için ayrı oturum
-- ✅ **Cevap Geçmişi**: Admin panelinde cevap geçmişi görünür
-
-## Kurulum
-
-### 1. Dosyaları Sunucuya Yükle
-
-Bu klasördeki tüm dosyaları sunucunuza yükleyin:
-
-```
-birol-chat.js
-birol-chat.php
-admin.html
-demo.html
-sessions/ (klasör)
-```
-
-### 2. İzinleri Ayarla
-
-`sessions/` klasörünün yazılabilir olduğundan emin olun:
-- `chmod 755 sessions/` veya `chmod 777 sessions/`
-
-### 3. Sitenize Entegre Edin
-
-Sitenizin her sayfasına şu kodu ekleyin:
-
-```html
-<script src="/birol-chat/birol-chat.js"></script>
-<script>
-  BirolChat.init({
-    apiMode:    "telegram",
-    apiUrl:     "/birol-chat/birol-chat.php",
-    botName:    "BirolBot",
-    botAvatar:  "🎮",
-    botStatus:  "Çevrimiçi",
-    welcomeMsg: "Merhaba! 👋 BirolChat'a hoş geldin. Telegram üzerinden canlı destek aktif.",
-    quickReplies: ["Nasıl bağlanırım?", "IP adresi nedir?", "Mağaza", "Destek", "Discord"]
-  });
-</script>
-```
-
-### 4. WordPress Kullanıyorsanız
-
-`functions.php` dosyasına ekleyin:
-
-```php
-function add_birol_chat() {
-    ?>
-    <script src="/birol-chat/birol-chat.js"></script>
-    <script>
-      BirolChat.init({
-        apiMode:    "telegram",
-        apiUrl:     "/birol-chat/birol-chat.php",
-        botName:    "BirolBot",
-        botAvatar:  "🎮",
-        botStatus:  "Çevrimiçi",
-        welcomeMsg: "Merhaba! 👋 BirolChat'a hoş geldin. Telegram üzerinden canlı destek aktif.",
-        quickReplies: ["Nasıl bağlanırım?", "IP adresi nedir?", "Mağaza", "Destek", "Discord"]
-      });
-    </script>
-    <?php
-}
-add_action('wp_footer', 'add_birol_chat');
-```
-
-## Kullanım
-
-### Ziyaretçi Mesajı
-
-1. Ziyaretçi siteye mesaj yazar
-2. Mesaj Telegram'a düşer
-3. Telegram'da admin panel linki gelir
-
-### Cevap Verme
-
-1. Telegram'da gelen linke tıklayın
-2. Admin paneli açılır
-3. Cevap yazın
-4. Cevap siteye düşer
-
-### Admin Panel
-
-Admin panel: `https://birols.com/birol-chat/admin.html`
-
 **Özellikler:**
-- 🔄 Oturumları görüntüleme
-- 📤 Cevap gönderme
-- 🗑️ Tekil oturum silme
-- 🗑️ Tüm oturumları temizleme
+- ✅ Telegram Entegrasyonu
+- ✅ Admin Paneli
+- ✅ Ücretsiz
+- ✅ Polling Tabanlı
 
-## Test
+**Kurulum:**
+`birol-chat/` klasörünü sunucunuza yükleyin ve README.md dosyasındaki talimatları izleyin.
 
-Demo sayfası: `https://birols.com/birol-chat/demo.html`
+## 🚀 Deployment
 
-## Telegram Ayarları
+### Vercel (Önerilen)
+```bash
+npm install -g vercel
+vercel
+```
 
-Bot Token: `8643642855:AAGDm3OBpARCcCnMLKQ7R7IR2eKtCaIYxHc`
-Chat ID: `6219303494`
-Bot: `@Haze77_bot`
+## 👨‍💻 Author
 
-**Not:** Webhook kullanılmaz, polling tabanlı çalışır.
+**Birol Sanlı**
+- [GitHub](https://github.com/birolsanli)
+- [LinkedIn](https://linkedin.com/in/birolsanli)
 
-## Teknik Detaylar
+---
 
-- **Backend:** PHP (birol-chat.php)
-- **Frontend:** JavaScript (birol-chat.js)
-- **Veri Depolama:** JSON dosyaları (sessions/)
-- **API:** Telegram Bot API
-- **Polling:** 3 saniyede bir
-
-## Sorun Giderme
-
-**Chatbox görünmüyor mu?**
-- Console'da hata kontrol edin (F12)
-- Script yolu doğru mu kontrol edin
-- Cache temizleyin
-
-**Mesaj Telegram'a düşmüyor mu?**
-- birol-chat.php dosyası yüklenmiş mi kontrol edin
-- Telegram bot token doğru mu kontrol edin
-- PHP hataları için log kontrol edin
-
-**Cevap siteye düşmüyor mu?**
-- Admin paneli çalışıyor mu kontrol edin
-- sessions/ klasörü yazılabilir mi kontrol edin
-- Polling çalışıyor mu kontrol edin (Console)
-
-## Lisans
-
-MIT License - Ücretsiz kullanım
+⭐ Eğer bu proje beğendiyseniz star vermeyi unutmayın!
