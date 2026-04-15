@@ -10,9 +10,9 @@ const TG_TOKEN = '8643642855:AAGDm3OBpARCcCnMLKQ7R7IR2eKtCaIYxHc';
 const TG_CHAT_ID = '6219303494';
 
 // Session storage (Vercel KV kullanabilirsiniz, şimdilik memory)
-const sessions = new Map<string, { replies: Array<{ text: string; time: number }> }>();
+const sessions = new Map();
 
-export async function GET(request: NextRequest) {
+export async function GET(request) {
   const searchParams = request.nextUrl.searchParams;
   const action = searchParams.get('action');
   const session = searchParams.get('session');
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   const searchParams = request.nextUrl.searchParams;
   const action = searchParams.get('action');
   
@@ -127,7 +127,7 @@ export async function OPTIONS() {
   return response;
 }
 
-async function sendTelegram(text: string) {
+async function sendTelegram(text) {
   const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;
   const response = await fetch(url, {
     method: 'POST',
