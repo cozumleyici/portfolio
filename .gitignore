@@ -1,0 +1,17 @@
+# Session data
+sessions/*.json
+sessions/debug.log
+sessions/error.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HazeBox Admin - Manuel Cevap</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0c0c0f; color: #f0f0f0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #ff6b00; margin-bottom: 20px; }
+        .session-list { margin-top: 20px; }
+        .session-item { background: #141419; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+        .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .session-id { font-weight: 600; color: #ff6b00; }
+        .session-time { color: #8888aa; font-size: 12px; }
+        .message { background: #1c1c24; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+        .message-label { color: #6366f1; font-size: 12px; margin-bottom: 5px; }
+        .message-text { color: #f0f0f0; }
+        .reply-section { margin-top: 10px; }
+        textarea { width: 100%; background: #0c0c0f; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px; color: #f0f0f0; font-family: inherit; resize: vertical; min-height: 60px; }
+        textarea:focus { outline: none; border-color: #ff6b00; }
+        button { background: #ff6b00; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        button:hover { background: #e65a00; }
+        .success { color: #22c55e; margin-top: 10px; font-size: 14px; }
+        .error { color: #ef4444; margin-top: 10px; font-size: 14px; }
+        .refresh-btn { background: #6366f1; margin-bottom: 20px; }
+        .refresh-btn:hover { background: #5558e0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 BirolChat Admin Panel</h1>
+        <button class="refresh-btn" onclick="loadSessions()">🔄 Yenile</button>
+        <button class="refresh-btn" onclick="clearAllSessions()">🗑️ Tümünü Temizle</button>
+        <div id="sessions" class="session-list"></div>
+    </div>
+
+    <script>
+        const API_URL = '/birol-chat/birol-chat.php';
+
+        async function loadSessions() {
+            try {
+                const response = await fetch(API_URL + '?action=list_sessions');
+                const data = await response.json();
+                displaySessions(data.sessions || []);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Oturumlar yüklenemedi');
+            }
+        }
+
+        function displaySessions(sessions) {
+            const container = document.getElementById('sessions');
+            container.innerHTML = '';
+
+            sessions.forEach(session => {
+                const div = document.createElement('div');
+                div.className = 'session-item';
+                div.innerHTML = `
+                    <div class="session-header">
+                        <span class="session-id">ID: ${session.id}</span>
+                        <span class="session-time">${new Date(session.time * 1000).toLocaleString('tr-TR')}</span>
+                        <button onclick="deleteSession('${session.id}')" style="margin-left: 10px; background: #ef4444; padding: 5px 10px; border: none; border-radius: 4px; color: white; cursor: pointer;">🗑️ Sil</button>
+                    </div>
+                    <div class="message">
+                        <div class="message-label">Ziyaretçi:</div>
+                        <div class="message-text">${session.message}</div>
+                    </div>
+                    ${session.replies && session.replies.length > 0 ? session.replies.map(r => `
+                        <div class="message">
+                            <div class="message-label">Admin:</div>
+                            <div class="message-text">${r.text}</div>
+                        </div>
+                    `).join('') : ''}
+                    <div class="reply-section">
+                        <textarea id="reply-${session.id}" placeholder="Cevabınızı yazın..."></textarea>
+                        <button onclick="sendReply('${session.id}')">📤 Cevap Gönder</button>
+                    </div>
+                    <div id="status-${session.id}"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function sendReply(sessionId) {
+            const textarea = document.getElementById(`reply-${sessionId}`);
+            const status = document.getElementById(`status-${sessionId}`);
+            const message = textarea.value.trim();
+
+            if (!message) {
+                status.innerHTML = '<div class="error">Lütfen bir mesaj yazın</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL + '?action=reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session: sessionId, message: message })
+                });
+                const data = await response.json();
+
+                if (data.ok) {
+                    status.innerHTML = '<div class="success">✅ Cevap gönderildi</div>';
+                    textarea.value = '';
+                    setTimeout(loadSessions, 1000);
+                } else {
+                    status.innerHTML = '<div class="error">❌ Hata oluştu</div>';
+                }
+            } catch (error) {
+                status.innerHTML = '<div class="error">❌ Bağlantı hatası</div>';
+            }
+        }
+
+        async function deleteSession(sessionId) {
+            if (!confirm('Bu oturumu silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(API_URL + '?action=delete_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session: sessionId })
+                });
+                const data = await response.json();
+
+                if (data.ok) {
+                    loadSessions();
+                } else {
+                    alert('Silme başarısız');
+                }
+            } catch (error) {
+                alert('Bağlantı hatası');
+            }
+        }
+
+        async function clearAllSessions() {
+            if (!confirm('TÜM oturumları silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(API_URL + '?action=clear_sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+
+                if (data.ok) {
+                    loadSessions();
+                } else {
+                    alert('Temizleme başarısız');
+                }
+            } catch (error) {
+                alert('Bağlantı hatası');
+            }
+        }
+
+        // Sayfa yüklendiğinde oturumları getir
+        loadSessions();
+    </script>
+</body>
+</html>
