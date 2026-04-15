@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HazeChat Demo — hazebox.fit</title>
+  <meta name="description" content="HazeBox canlı destek chatbox widget demosu" />
+  <style>
+    /* Demo sayfası stili */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0c0c0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .demo-hero {
+      text-align: center;
+      max-width: 600px;
+    }
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,107,0,0.12);
+      border: 1px solid rgba(255,107,0,0.3);
+      color: #ff6b00;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 99px;
+      margin-bottom: 24px;
+    }
+    .demo-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, #ff6b00 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .demo-hero p {
+      color: #8888aa;
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    .demo-code-block {
+      background: #141419;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: left;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #c9d1d9;
+      white-space: pre;
+      overflow-x: auto;
+      position: relative;
+      margin-bottom: 32px;
+    }
+    .demo-code-block .kw  { color: #ff6b00; }
+    .demo-code-block .str { color: #7ee85c; }
+    .demo-code-block .fn  { color: #6366f1; }
+    .demo-code-block .cm  { color: #666680; }
+    .copy-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #8888aa;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.12); color: #f0f0f0; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+      text-align: left;
+    }
+    .feature-card {
+      background: #141419;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .feature-icon { font-size: 22px; }
+    .feature-title { font-size: 14px; font-weight: 700; color: #f0f0f0; }
+    .feature-desc  { font-size: 12px; color: #8888aa; line-height: 1.5; }
+    .arrow-hint {
+      position: fixed;
+      bottom: 106px;
+      right: 100px;
+      color: #ff6b00;
+      font-size: 14px;
+      font-weight: 700;
+      animation: hazeFloat 2s infinite ease-in-out;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    @keyframes hazeFloat {
+      0%,100% { transform: translateX(0); }
+      50%      { transform: translateX(6px); }
+    }
+    @media (max-width: 480px) {
+      .arrow-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-hero">
+    <div class="demo-badge">⚡ HazeChat Widget v1.0</div>
+    <h1>Chatbox Demo</h1>
+    <p>
+      hazebox.fit için hazırlanmış sıfır bağımlılıklı, tek dosya chatbox widget'ı.<br/>
+      Sağ altta balonun tıkla ve dene! 👇
+    </p>
+
+    <div class="demo-code-block" id="codeBlock"><button class="copy-btn" onclick="copyCode()">📋 Kopyala</button><span class="cm">&lt;!-- 1. chatbox.js'i sayfana ekle --&gt;</span>
+<span class="kw">&lt;script</span> <span class="fn">src</span>=<span class="str">"chatbox.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- 2. Sayfanın herhangi bir yerine başlatma kodunu yapıştır --&gt;</span>
+<span class="kw">&lt;script&gt;</span>
+  HazeChat<span class="fn">.init</span>({
+    botName:    <span class="str">"HazeBot"</span>,
+    botAvatar:  <span class="str">"🎮"</span>,
+    botStatus:  <span class="str">"Çevrimiçi"</span>,
+    welcomeMsg: <span class="str">"Merhaba! HazeBox'a hoş geldin 👋"</span>,
+    quickReplies: [
+      <span class="str">"Nasıl bağlanırım?"</span>,
+      <span class="str">"IP adresi nedir?"</span>,
+      <span class="str">"Mağaza"</span>,
+      <span class="str">"Destek"</span>
+    ]
+  });
+<span class="kw">&lt;/script&gt;</span></div>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <div class="feature-title">Sıfır Bağımlılık</div>
+        <div class="feature-desc">Hiçbir kütüphane gerekmez. Tek .js dosyası.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-title">Özelleştirilebilir</div>
+        <div class="feature-desc">Renk, ad, yanıt metinleri, hızlı butonlar.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Mobil Uyumlu</div>
+        <div class="feature-desc">Tüm ekran boyutlarında mükemmel çalışır.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <div class="feature-title">API Desteği</div>
+        <div class="feature-desc">apiUrl ile gerçek bir sunucuya bağlanabilir.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Akıllı Bot</div>
+        <div class="feature-desc">Anahtar kelime bazlı otomatik yanıt motoru.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Animasyonlu</div>
+        <div class="feature-desc">Akıcı geçişler ve micro-animation'lar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-hint">Deneyin! ——&gt;</div>
+
+  <!-- ───────── CHATBOX ENTEGRASYONU (sadece 2 satır) ───────── -->
+  <script src="chatbox.js"></script>
+  <script>
+    HazeChat.init({
+      apiMode:    "telegram",
+      apiUrl:     "/api/chat",
+      botName:    "HazeBot",
+      botAvatar:  "🎮",
+      botStatus:  "Çevrimiçi",
+      welcomeMsg: "Merhaba! 👋 HazeBox'a hoş geldin. Telegram üzerinden canlı destek aktif.",
+      quickReplies: ["Nasıl bağlanırım?", "IP adresi nedir?", "Mağaza", "Destek", "Discord"],
+      closeOnOutsideClick: false
+    });
+
+    function copyCode() {
+      const code = `<!-- 1. chatbox.js'i sayfana ekle -->
+<script src="chatbox.js"><\/script>
+
+<!-- 2. Sayfanın herhangi bir yerine başlatma kodunu yapıştır -->
+<script>
+  HazeChat.init({
+    botName:    "HazeBot",
+    botAvatar:  "🎮",
+    botStatus:  "Çevrimiçi",
+    welcomeMsg: "Merhaba! HazeBox'a hoş geldin 👋",
+    quickReplies: [
+      "Nasıl bağlanırım?",
+      "IP adresi nedir?",
+      "Mağaza",
+      "Destek"
+    ]
+  });
+<\/script>`;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '✅ Kopyalandı!';
+        setTimeout(() => btn.textContent = '📋 Kopyala', 2000);
+      });
+    }
+  </script>
+</body>
+</html>
