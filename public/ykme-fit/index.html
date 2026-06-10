@@ -13,6 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Özel CSS -->
     <link rel="stylesheet" href="index.css">
+    <!-- Google Identity Services (Giriş API) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -624,6 +626,21 @@
                                     </div>
                                 </div>
                                 <button type="submit" class="onboarding-btn" style="height: 44px; font-size: 13px; margin-top: 10px;">Reklam Ayarlarını Kaydet</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Google Auth Ayarları Kartı -->
+                        <div class="chart-card">
+                            <span class="chart-title" style="display: flex; align-items: center; gap: 8px;"><i class="fa-brands fa-google" style="color: #4285F4;"></i>Google Giriş Ayarları (API)</span>
+                            <form id="admin-google-auth-form" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label" style="font-size: 11px;">Google Client ID (İstemci Kimliği)</label>
+                                    <input type="text" id="admin-google-client-id" class="form-input" placeholder="Örn: 123456-abcdef.apps.googleusercontent.com">
+                                </div>
+                                <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.3;">
+                                    <strong>Önemli:</strong> Sitenizde gerçek Google hesap seçicinin çalışabilmesi için Google Cloud Console'dan bir OAuth 2.0 İstemci Kimliği oluşturup JavaScript Yetkilendirilmiş Kaynakları'na <code>https://birols.com</code> adresini eklemelisiniz.
+                                </div>
+                                <button type="submit" class="onboarding-btn" style="height: 44px; font-size: 13px; margin-top: 10px; background: #4285F4;">Google Auth Ayarlarını Kaydet</button>
                             </form>
                         </div>
                         

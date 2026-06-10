@@ -1381,3 +1381,14 @@ input:checked + .toggle-slider:before {
     margin-top: 2px;
 }
 
+@media (max-width: 480px) {
+    .phone-container {
+        height: 100vh !important;
+        height: -webkit-fill-available !important;
+        max-height: 100% !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+}
+
