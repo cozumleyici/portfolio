@@ -75,8 +75,8 @@ function initApp() {
         showStartupLogin();
     } else {
         hideStartupLogin();
-        // Onboarding kontrolü
-        if (!DB.isOnboardingCompleted()) {
+        // Onboarding kontrolü - Sadece üye ise ve tamamlanmadıysa göster
+        if (!DB.isOnboardingCompleted() && state.profile.isLoggedIn) {
             showOnboarding();
         } else {
             hideOnboarding();
@@ -114,23 +114,12 @@ function openGoogleLoginModal() {
 
     const googleClientId = localStorage.getItem('kosutakip_google_client_id') || DEFAULT_GOOGLE_CLIENT_ID;
     
-    const modal = document.getElementById('google-login-modal');
-    const loadingView = document.getElementById('google-view-loading');
-    const setupView = document.getElementById('google-view-setup');
-
-    if (modal) modal.classList.add('active');
-
     if (googleClientId) {
-        if (loadingView) loadingView.classList.remove('d-none');
-        if (setupView) setupView.classList.add('d-none');
+        const modal = document.getElementById('google-login-modal');
+        if (modal) modal.classList.add('active');
         triggerRealGoogleSignIn(googleClientId);
     } else {
-        if (loadingView) loadingView.classList.add('d-none');
-        if (setupView) setupView.classList.remove('d-none');
-        
-        // Setup input alanını temizle
-        const setupInput = document.getElementById('setup-google-client-id');
-        if (setupInput) setupInput.value = '';
+        alert("Google Giriş Sistemi yapılandırılmamış. Lütfen app.js dosyasının 39. satırındaki 'DEFAULT_GOOGLE_CLIENT_ID' değişkenine Google Client ID'nizi ekleyin.");
     }
 }
 
@@ -555,22 +544,28 @@ function stopTracking() {
         }
 
         // Koşuyu kaydet
-        if (state.distance > 0.05) { // En az 50 metre koşulmuşsa kaydet
-            const newRun = {
-                type: 'Koşu',
-                date: new Date().toISOString(),
-                distance: parseFloat(state.distance.toFixed(2)),
-                duration: state.duration,
-                calories: Math.round(state.calories),
-                route: state.routePoints
-            };
-            DB.addActivity(newRun);
-            syncAllToCloud();
-            speakText(`Koşu tamamlandı. Tebrikler! ${newRun.distance} kilometre koştunuz.`);
-            alert(`Koşu kaydedildi!\nMesafe: ${newRun.distance} km\nSüre: ${formatDuration(newRun.duration)}`);
+        if (state.profile.isLoggedIn) {
+            if (state.distance > 0.05) { // En az 50 metre koşulmuşsa kaydet
+                const newRun = {
+                    type: 'Koşu',
+                    date: new Date().toISOString(),
+                    distance: parseFloat(state.distance.toFixed(2)),
+                    duration: state.duration,
+                    calories: Math.round(state.calories),
+                    route: state.routePoints
+                };
+                DB.addActivity(newRun);
+                syncAllToCloud();
+                speakText(`Koşu tamamlandı. Tebrikler! ${newRun.distance} kilometre koştunuz.`);
+                alert(`Koşu kaydedildi!\nMesafe: ${newRun.distance} km\nSüre: ${formatDuration(newRun.duration)}`);
+            } else {
+                speakText("Koşu kaydedilmeyecek kadar kısa sürdü.");
+                alert("Mesafe çok kısa olduğu için koşu kaydedilmedi.");
+            }
         } else {
-            speakText("Koşu kaydedilmeyecek kadar kısa sürdü.");
-            alert("Mesafe çok kısa olduğu için koşu kaydedilmedi.");
+            // Ziyaretçi Modu
+            speakText("Koşu tamamlandı.");
+            alert(`Koşu Bitti!\nMesafe: ${state.distance.toFixed(2)} km\nSüre: ${formatDuration(state.duration)}\n\nNot: Üyeliğiniz olmadığı için bu antrenman kaydedilmedi.`);
         }
 
         // Değişkenleri sıfırla
@@ -590,7 +585,11 @@ function stopTracking() {
         document.getElementById('btn-pause').style.backgroundColor = 'var(--surface-color)';
         document.getElementById('btn-pause').style.color = 'var(--primary-color)';
 
-        switchScreen('gunluk');
+        if (state.profile.isLoggedIn) {
+            switchScreen('gunluk');
+        } else {
+            switchScreen('basla');
+        }
     };
 
     if (state.profile.endActivityConfirm) {
@@ -1158,6 +1157,18 @@ function logWeight(weightValue) {
 function updateProfileUI() {
     const profile = state.profile;
     
+    // Ziyaretçi (Misafir) Modu Kısıtlamaları
+    const settingsBtn = document.getElementById('header-settings-btn');
+    const bottomNav = document.querySelector('.bottom-nav');
+    
+    if (!profile.isLoggedIn) {
+        if (settingsBtn) settingsBtn.style.display = 'none';
+        if (bottomNav) bottomNav.style.display = 'none';
+    } else {
+        if (settingsBtn) settingsBtn.style.display = 'flex';
+        if (bottomNav) bottomNav.style.display = 'flex';
+    }
+    
     // Üst bar sol kısma profil resmi ekle
     let avatarContainer = document.getElementById('header-profile-avatar');
     if (!avatarContainer) {
@@ -1398,10 +1409,7 @@ function renderAdminPanel() {
     
     toggleAdminAdFields(adSettings.type || 'manual');
     
-    // Google Auth API İstemci Kimliğini Yükle
-    const savedClientId = localStorage.getItem('kosutakip_google_client_id') || '';
-    const adminGoogleClientId = document.getElementById('admin-google-client-id');
-    if (adminGoogleClientId) adminGoogleClientId.value = savedClientId;
+
     
     // 2. Kullanıcıları Listele
     const users = DB.getAllUsers();
@@ -2046,16 +2054,7 @@ function setupEventListeners() {
         });
     }
 
-    // Google Auth Ayarları Kaydetme Formu Gönderimi
-    const adminGoogleAuthForm = document.getElementById('admin-google-auth-form');
-    if (adminGoogleAuthForm) {
-        adminGoogleAuthForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const clientId = document.getElementById('admin-google-client-id').value.trim();
-            localStorage.setItem('kosutakip_google_client_id', clientId);
-            alert("Google API Ayarları başarıyla kaydedildi.");
-        });
-    }
+
 
 
 }
