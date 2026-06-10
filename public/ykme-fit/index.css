@@ -1385,12 +1385,14 @@ input:checked + .toggle-slider:before {
     .phone-container {
         width: 100% !important;
         max-width: 100% !important;
-        height: 100vh !important;
-        height: -webkit-fill-available !important;
-        max-height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
         border: none !important;
         border-radius: 0 !important;
         box-shadow: none !important;
+    }
+    .phone-container .phone-header {
+        display: none !important;
     }
 }
 
@@ -1398,11 +1400,14 @@ input:checked + .toggle-slider:before {
 .phone-container.fullscreen-mode {
     width: 100% !important;
     max-width: 100% !important;
-    height: 100vh !important;
-    height: -webkit-fill-available !important;
-    max-height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+}
+
+.phone-container.fullscreen-mode .phone-header {
+    display: none !important;
 }
 
