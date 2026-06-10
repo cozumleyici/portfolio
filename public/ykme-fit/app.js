@@ -45,6 +45,25 @@ function initApp() {
     state.profile = DB.getProfile();
     state.activities = DB.getActivities();
 
+    // Mobil/PC Cihaz ve Çerçeve Tespiti
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const phoneContainer = document.querySelector('.phone-container');
+    if (phoneContainer) {
+        if (isMobileDevice) {
+            phoneContainer.classList.add('fullscreen-mode');
+        } else {
+            phoneContainer.classList.remove('fullscreen-mode');
+        }
+    }
+    
+    // GPS Simülasyon modunu cihaz tipine göre otomatik ayarla
+    // Mobil cihazda gerçek GPS aktif olsun (Simülasyon Kapalı), PC'de Simülasyon Açık olsun
+    state.simulationMode = !isMobileDevice;
+    const simToggle = document.getElementById('sim-mode-toggle');
+    if (simToggle) {
+        simToggle.checked = state.simulationMode;
+    }
+
     // Olay Dinleyicileri (Event Listeners) tanımla
     setupEventListeners();
 
@@ -84,7 +103,6 @@ function hideStartupLogin() {
     document.getElementById('startup-login-overlay').classList.remove('active');
 }
 
-// Google Giriş Modalı Yönetimi ve Görünüm Sıfırlama
 function openGoogleLoginModal() {
     const googleClientId = localStorage.getItem('kosutakip_google_client_id');
     if (googleClientId && window.google) {
@@ -92,17 +110,32 @@ function openGoogleLoginModal() {
         return;
     }
     
-    // Fallback: Gösterişli Mock Hesap Seçici
-    const picker = document.getElementById('google-view-picker');
-    const manual = document.getElementById('google-view-manual');
-    const loading = document.getElementById('google-view-loading');
+    // Fallback: Gerçekçi Pop-up Hesap Seçici
+    const width = 520;
+    const height = 600;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
     
-    if (picker) picker.classList.remove('d-none');
-    if (manual) manual.classList.add('d-none');
-    if (loading) loading.classList.add('d-none');
+    // Klasörün altındaysa relative path'den google-login.html dosyasını çağırıyoruz
+    const url = 'google-login.html'; 
     
-    const modal = document.getElementById('google-login-modal');
-    if (modal) modal.classList.add('active');
+    const popup = window.open(url, 'GoogleAuth', `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
+    
+    if (popup) {
+        popup.focus();
+    } else {
+        // Pop-up engelleyici varsa modal fallback'ini göster
+        const picker = document.getElementById('google-view-picker');
+        const manual = document.getElementById('google-view-manual');
+        const loading = document.getElementById('google-view-loading');
+        
+        if (picker) picker.classList.remove('d-none');
+        if (manual) manual.classList.add('d-none');
+        if (loading) loading.classList.add('d-none');
+        
+        const modal = document.getElementById('google-login-modal');
+        if (modal) modal.classList.add('active');
+    }
 }
 
 function triggerRealGoogleSignIn(clientId) {
@@ -2039,6 +2072,13 @@ function setupEventListeners() {
             alert("Google API Ayarları başarıyla kaydedildi.");
         });
     }
+
+    // Google pop-up penceresinden gelen giriş mesajlarını dinle
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'google-sign-in-mock') {
+            processGoogleSignIn(e.data.name, e.data.email, e.data.photoUrl || '');
+        }
+    });
 }
 
 // Screen WakeLock API yönetimi
