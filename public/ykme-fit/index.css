@@ -1383,6 +1383,8 @@ input:checked + .toggle-slider:before {
 
 @media (max-width: 480px) {
     .phone-container {
+        width: 100% !important;
+        max-width: 100% !important;
         height: 100vh !important;
         height: -webkit-fill-available !important;
         max-height: 100% !important;
