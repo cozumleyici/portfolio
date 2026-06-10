@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Hesabı ile Oturum Açın</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 1040px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 36px 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            min-height: 450px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 24px;
+                border-radius: 16px;
+            }
+        }
+
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-right: 20px;
+        }
+
+        .google-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .google-logo svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .google-logo span {
+            color: #5f6368;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 400;
+            color: #1f1f1f;
+            line-height: 1.25;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #1f1f1f;
+            line-height: 1.5;
+        }
+
+        .subtitle a {
+            color: #0b57d0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 20px;
+            border-left: 1.5px solid #f0f4f9;
+        }
+
+        @media (max-width: 768px) {
+            .right-col {
+                padding-left: 0;
+                border-left: none;
+                border-top: 1.5px solid #f0f4f9;
+                padding-top: 24px;
+            }
+        }
+
+        .account-list {
+            list-style: none;
+            width: 100%;
+        }
+
+        .account-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 12px;
+            border-bottom: 1.5px solid #f0f4f9;
+            cursor: pointer;
+            transition: background-color 0.2s, border-radius 0.2s;
+            text-align: left;
+        }
+
+        .account-item:last-child {
+            border-bottom: none;
+        }
+
+        .account-item:hover {
+            background-color: #f8fafd;
+            border-radius: 8px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #0b57d0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 16px;
+            margin-right: 16px;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f1f1f;
+        }
+
+        .email {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 2px;
+        }
+
+        .use-another {
+            color: #0b57d0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1040px;
+            width: 100%;
+            margin: 16px auto 0 auto;
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-links a {
+            color: #5f6368;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #1f1f1f;
+        }
+
+        .lang-selector {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="left-col">
+            <div class="google-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                </svg>
+                <span>Google ile oturum açın</span>
+            </div>
+            
+            <h1 class="title">Bir hesap seçin</h1>
+            <p class="subtitle"><a href="#">ykme-fit.vercel.app</a> uygulamasına devam edin</p>
+        </div>
+        
+        <div class="right-col">
+            <ul class="account-list">
+                <!-- Hesap 1 -->
+                <li class="account-item" onclick="selectAccount('birol şanlı', 'birolsanli29@gmail.com')">
+                    <div class="avatar" style="background-color: #5c3d92;">B</div>
+                    <div class="details">
+                        <span class="name">birol şanlı</span>
+                        <span class="email">birolsanli29@gmail.com</span>
+                    </div>
+                </li>
+                <!-- Hesap 2 -->
+                <li class="account-item" onclick="selectAccount('Yasin Kaya', 'yasin.kaya@gmail.com')">
+                    <div class="avatar" style="background-color: #34A853;">Y</div>
+                    <div class="details">
+                        <span class="name">Yasin Kaya</span>
+                        <span class="email">yasin.kaya@gmail.com</span>
+                    </div>
+                </li>
+                <!-- Başka hesap kullan -->
+                <li class="account-item" onclick="useAnother()">
+                    <div class="avatar" style="background-color: #e8f0fe; color: #0b57d0;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M9 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4zm6 5H3v-.99c.2-1.29 2.63-3.01 6-3.01s5.8 1.72 6 3.01V18zm6.5-5.5v2H23v2h-1.5v2h-2v-2H18v-2h1.5v-2h2z"/>
+                        </svg>
+                    </div>
+                    <div class="details">
+                        <span class="use-another">Başka bir hesap kullan</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="lang-selector">Türkçe ▾</div>
+        <div class="footer-links">
+            <a href="#" target="_blank">Yardım</a>
+            <a href="#" target="_blank">Gizlilik</a>
+            <a href="#" target="_blank">Şartlar</a>
+        </div>
+    </div>
+
+    <script>
+        // Parent sayfanın domainine göre link metnini güncelle
+        try {
+            if (window.opener) {
+                const origin = window.opener.location.origin;
+                const hostname = window.opener.location.hostname;
+                const subtitle = document.querySelector('.subtitle');
+                if (subtitle) {
+                    subtitle.innerHTML = `<a href="${origin}">${hostname}</a> uygulamasına devam edin`;
+                }
+            }
+        } catch (e) {
+            console.warn("Opener origin okunamadı:", e);
+        }
+
+        function selectAccount(name, email) {
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'google-sign-in-mock',
+                    name: name,
+                    email: email,
+                    photoUrl: ''
+                }, '*');
+                window.close();
+            }
+        }
+
+        function useAnother() {
+            const name = prompt("Lütfen adınızı girin:");
+            if (!name) return;
+            const email = prompt("Lütfen e-posta adresinizi girin:");
+            if (!email || !email.includes('@')) {
+                alert("Geçersiz e-posta!");
+                return;
+            }
+            selectAccount(name, email);
+        }
+    </script>
+</body>
+</html>
