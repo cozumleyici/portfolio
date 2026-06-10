@@ -35,6 +35,9 @@ const state = {
     weightChart: null
 };
 
+// Google Client ID (Tüm cihazlarda çalışması için Google Cloud Console'dan aldığınız kodu buraya yapıştırın)
+const DEFAULT_GOOGLE_CLIENT_ID = '991487984220-2d20pbsu2jhjcaq1oq1g421vm1jf5ark.apps.googleusercontent.com';
+
 // Sayfa yüklendiğinde çalışacak ana kod
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
@@ -104,7 +107,7 @@ function hideStartupLogin() {
 }
 
 function openGoogleLoginModal() {
-    const googleClientId = localStorage.getItem('kosutakip_google_client_id');
+    const googleClientId = localStorage.getItem('kosutakip_google_client_id') || DEFAULT_GOOGLE_CLIENT_ID;
     if (googleClientId && window.google) {
         triggerRealGoogleSignIn(googleClientId);
         return;
