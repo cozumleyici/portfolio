@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koşu Takip - YKME-FİT Style</title>
+    <!-- Font Awesome (İkonlar için) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet.js (Harita için) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js (Grafikler için) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Özel CSS -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- Telefon Emülatör Çerçevesi -->
+    <div class="phone-container">
+        
+        <!-- Durum Çubuğu (Status Bar Mock) -->
+        <div class="phone-header">
+            <span id="phone-time">11:22</span>
+            <div class="right-icons">
+                <i class="fa-solid fa-volume-mute" style="opacity: 0.5; font-size: 11px;"></i>
+                <i class="fa-solid fa-signal"></i>
+                <span style="font-size: 11px; font-weight: 700;">LTE</span>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+                <span style="font-size: 11px; font-weight: 700;">32</span>
+            </div>
+        </div>
+
+        <!-- Bulut Senkronizasyon Bildirim Çubuğu -->
+        <div id="cloud-sync-toast" class="cloud-toast d-none">
+            <i class="fa-solid fa-cloud-arrow-up fa-bounce"></i>
+            <span id="cloud-sync-toast-text">Bulut yedeği eşitleniyor...</span>
+        </div>
+
+        <!-- AÇILIŞ GİRİŞ EKRANI (Giriş Yapılmamışsa Görünür) -->
+        <div id="startup-login-overlay" class="onboarding-screen d-none" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 40px; text-align: center; background: linear-gradient(135deg, #f7f8fc 0%, #f0ebf7 100%); padding: 32px; height: 100%; width: 100%;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: auto;">
+                <!-- YKME-FİT App Logo -->
+                <div style="width: 80px; height: 80px; border-radius: 24px; background: var(--violet-grad); color: white; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; box-shadow: 0 10px 25px rgba(92, 61, 146, 0.25);">
+                    YK
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800; color: var(--primary-dark); margin-top: 10px;">YKME-FİT</h1>
+                <p style="font-size: 14px; color: var(--text-secondary); max-width: 250px;">Koş, paylaş, kilo ver ve hedeflerine ulaş!</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 100%; margin-bottom: auto; margin-top: 40px; align-items: center;">
+                <button id="btn-startup-google-login" class="onboarding-btn" style="background: #ffffff; color: #3c4043; border: 1.5px solid #dadce0; box-shadow: 0 2px 4px rgba(0,0,0,0.06); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; height: 52px; width: 100%; border-radius: 26px; transition: background-color 0.2s; cursor: pointer; margin-top: 10px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" style="display: block;">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                    </svg>
+                    Google Hesabı ile Giriş Yap & Yedekle
+                </button>
+                
+                <button id="btn-login-guest" style="background: none; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; margin-top: 10px;">
+                    Ziyaretçi Olarak Devam Et
+                </button>
+            </div>
+        </div>
+
+        <!-- ONBOARDING EKRANI (İlk Kurulumda Görünür) -->
+        <div id="onboarding-overlay" class="onboarding-screen d-none">
+            <div>
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Senin planın</span>
+                <div class="progress-bar-container" style="margin-top: 8px;">
+                    <div class="progress-bar"></div>
+                </div>
+                
+                <span style="font-size: 14px; font-weight: 700; color: var(--text-secondary);">01 Hedef</span>
+                <h1 class="onboarding-title">Neyi başarmak istiyorsun?</h1>
+
+                <div class="goal-card-list">
+                    <!-- Ağırlık Kartı -->
+                    <div class="goal-card selected" data-goal="weight-loss">
+                        <span class="goal-title">Ağırlığı Azaltın</span>
+                        <svg class="goal-icon" viewBox="0 0 64 64" width="60" height="60">
+                            <rect x="12" y="16" width="40" height="36" rx="8" fill="#f0ebf7" stroke="#5c3d92" stroke-width="3"/>
+                            <circle x="32" y="32" r="12" fill="none" stroke="#5c3d92" stroke-width="3"/>
+                            <line x1="32" y1="32" x2="38" y2="26" stroke="#ff9d00" stroke-width="3" stroke-linecap="round"/>
+                            <rect x="22" y="8" width="20" height="8" rx="3" fill="#5c3d92"/>
+                        </svg>
+                    </div>
+
+                    <!-- 5K Kartı -->
+                    <div class="goal-card" data-goal="5km">
+                        <span class="goal-title">5 Kilometre</span>
+                        <svg class="goal-icon" viewBox="0 0 64 64" width="60" height="60">
+                            <circle cx="32" cy="32" r="22" fill="#ffeff2" stroke="#ff4757" stroke-width="3"/>
+                            <text x="32" y="40" font-family="'Outfit'" font-size="24" font-weight="800" fill="#ff4757" text-anchor="middle">5</text>
+                            <path d="M46 16 L48 20 M18 44 L16 48" stroke="#ff9d00" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <!-- 10K Kartı -->
+                    <div class="goal-card" data-goal="10km">
+                        <span class="goal-title">10 Kilometre</span>
+                        <svg class="goal-icon" viewBox="0 0 64 64" width="60" height="60">
+                            <circle cx="32" cy="32" r="22" fill="#fff9eb" stroke="#ffa502" stroke-width="3"/>
+                            <text x="32" y="40" font-family="'Outfit'" font-size="20" font-weight="800" fill="#ffa502" text-anchor="middle">10</text>
+                            <path d="M48 20 L52 18 M12 42 L16 44" stroke="#5c3d92" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <!-- Yarı Maraton Kartı -->
+                    <div class="goal-card" data-goal="half-marathon">
+                        <span class="goal-title">Yarı maraton</span>
+                        <svg class="goal-icon" viewBox="0 0 64 64" width="60" height="60">
+                            <circle cx="32" cy="32" r="22" fill="#e8f4fd" stroke="#2f3542" stroke-width="3"/>
+                            <!-- Runner icon representation -->
+                            <circle cx="34" cy="18" r="4" fill="#2f3542"/>
+                            <path d="M30 24 L34 28 L38 27 M34 28 L32 36 L26 42 M32 36 L36 44 L42 45" stroke="#2f3542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <button id="onboarding-next-btn" class="onboarding-btn">Sonraki</button>
+        </div>
+
+        <!-- ANA UYGULAMA DÜZENİ -->
+        <div id="app-main-layout" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+            
+            <!-- Üst Başlık Çubuğu -->
+            <div class="header-bar">
+                <span class="header-title">Koşu Takip</span>
+                <button class="header-btn" id="header-settings-btn">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
+
+            <!-- Ana Ekran İçerikleri -->
+            <div class="app-content">
+
+                <!-- 1. BAŞLA EKRANI -->
+                <div id="basla-screen" class="screen active">
+                    <div class="tracker-container">
+                        
+                        <!-- Ziyaretçi Banner (Oturum Açma Uyarısı) -->
+                        <div id="guest-login-banner" class="guest-banner d-none">
+                            <div class="guest-banner-left">
+                                <i class="fa-solid fa-cloud-slash guest-banner-icon"></i>
+                                <div class="guest-banner-text">
+                                    <div class="guest-banner-title">Bulut Yedekleme Devre Dışı</div>
+                                    <div class="guest-banner-desc">Koşularınızı kaybetmemek için Google ile yedekleyin.</div>
+                                </div>
+                            </div>
+                            <button id="btn-guest-banner-login" class="guest-banner-btn">Giriş Yap</button>
+                        </div>
+
+                        <!-- Simülasyon Modu Seçici (Test Kolaylığı İçin) -->
+                        <div class="simulation-toggle-container">
+                            <div class="simulation-toggle-title">
+                                <i class="fa-solid fa-robot" style="color: var(--primary-color); margin-right: 8px;"></i>
+                                GPS Simülasyon Modu (Masaüstü için)
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="sim-mode-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <!-- Büyük Süre & Mesafe Paneli -->
+                        <div class="tracker-main-box">
+                            <span class="tracker-stat-label" style="color: rgba(255,255,255,0.7)">SÜRE</span>
+                            <div class="tracker-main-value" id="tracker-duration">0:00</div>
+                        </div>
+
+                        <div class="tracker-stats-grid">
+                            <div class="tracker-stat-box">
+                                <span class="tracker-stat-label">Uzaklık</span>
+                                <div>
+                                    <span class="tracker-stat-value" id="tracker-distance">0.00</span>
+                                    <span class="tracker-stat-unit">km</span>
+                                </div>
+                            </div>
+                            <div class="tracker-stat-box">
+                                <span class="tracker-stat-label">Kalori</span>
+                                <div>
+                                    <span class="tracker-stat-value" id="tracker-calories">0</span>
+                                    <span class="tracker-stat-unit">kcal</span>
+                                </div>
+                            </div>
+                            <div class="tracker-stat-box" style="grid-column: span 2">
+                                <span class="tracker-stat-label">Tempo</span>
+                                <div>
+                                    <span class="tracker-stat-value" id="tracker-pace">-:-</span>
+                                    <span class="tracker-stat-unit">/ km</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Harita Görünümü -->
+                        <div id="map-container"></div>
+
+                        <!-- Kontrol Düğmeleri -->
+                        <div class="tracker-controls">
+                            <!-- Durdur -->
+                            <button class="btn-control btn-control-secondary d-none" id="btn-stop">
+                                <i class="fa-solid fa-square"></i>
+                            </button>
+                            <!-- Başlat / Oynat -->
+                            <button class="btn-control btn-control-main" id="btn-start">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <!-- Duraklat -->
+                            <button class="btn-control btn-control-secondary d-none" id="btn-pause">
+                                <i class="fa-solid fa-pause"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. GÜNLÜK EKRANI -->
+                <div id="gunluk-screen" class="screen">
+                    <div class="diary-container">
+                        <!-- Zaman Filtreleme Sekmeleri -->
+                        <div class="filter-tabs">
+                            <button class="filter-tab">Hafta</button>
+                            <button class="filter-tab active">Ay</button>
+                            <button class="filter-tab">Yıl</button>
+                            <button class="filter-tab">Toplam</button>
+                        </div>
+
+                        <!-- Ay Navigasyonu -->
+                        <div class="month-navigator">
+                            <button class="nav-arrow"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="current-month-text">Haziran 2026</span>
+                            <button class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+
+                        <!-- Aylık Özet Kartı -->
+                        <div class="stats-summary-card">
+                            <button class="share-btn-absolute"><i class="fa-solid fa-share-nodes"></i></button>
+                            
+                            <div class="stats-summary-grid">
+                                <div class="diary-summary-box">
+                                    <span class="diary-summary-label">Süre</span>
+                                    <span class="diary-summary-value" id="diary-total-duration">1:40:57</span>
+                                </div>
+                                <div class="diary-summary-box">
+                                    <span class="diary-summary-label">Uzaklık</span>
+                                    <span class="diary-summary-value" id="diary-total-distance">5 km</span>
+                                </div>
+                                <div class="diary-summary-box">
+                                    <span class="diary-summary-label">Kalori</span>
+                                    <span class="diary-summary-value" id="diary-total-calories">560 kcal</span>
+                                </div>
+                                <div class="diary-summary-box">
+                                    <span class="diary-summary-label">Aktiviteler</span>
+                                    <span class="diary-summary-value" id="diary-total-activities">2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aktivite Listesi -->
+                        <div class="activity-list-container" id="activity-list">
+                            <!-- JavaScript dinamik olarak kartları dolduracak -->
+                        </div>
+
+                        <button class="add-activity-btn" id="btn-add-activity-manual">
+                            <i class="fa-solid fa-plus"></i> Aktivite ekle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. YAYIN EKRANI (Mock Social Feed) -->
+                <div id="yayin-screen" class="screen">
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-secondary);">Topluluk Akışı</span>
+                        
+                        <!-- Yeni Gönderi Oluşturma Kartı -->
+                        <div class="chart-card" id="yayin-create-post-card">
+                            <span class="chart-title">Bugün Neler Yaptın?</span>
+                            <form id="yayin-post-form" style="display: flex; flex-direction: column; gap: 10px;">
+                                <textarea id="yayin-post-input" class="form-input" placeholder="Bugün nasıl geçti? Hislerini veya hedeflerini toplulukla paylaş..." style="height: 72px; padding: 12px; resize: none; border-radius: var(--border-radius-sm);" required></textarea>
+                                <button type="submit" class="onboarding-btn" style="height: 40px; margin-top: 0; width: auto; align-self: flex-end; padding: 0 20px; font-size: 13px;">Paylaş</button>
+                            </form>
+                        </div>
+
+                        <!-- Canlı Gönderi Listesi -->
+                        <div id="yayin-feed-container" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- JS dinamik olarak dolduracak -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. İSTATİSTİKLER EKRANI -->
+                <div id="istatistikler-screen" class="screen">
+                    <div class="stats-container">
+                        <!-- Zaman Filtreleme Sekmeleri -->
+                        <div class="filter-tabs">
+                            <button class="filter-tab">Hafta</button>
+                            <button class="filter-tab active">Ay</button>
+                            <button class="filter-tab">Yıl</button>
+                            <button class="filter-tab">Toplam</button>
+                        </div>
+
+                        <!-- Ay Navigasyonu -->
+                        <div class="month-navigator">
+                            <button class="nav-arrow"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="current-month-text">Haziran 2026</span>
+                            <button class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+
+                        <!-- Grafik Kartı -->
+                        <div class="chart-card">
+                            <div class="chart-title-container">
+                                <span class="chart-title">Toplam Faaliyetler</span>
+                            </div>
+                            <div class="chart-canvas-wrapper">
+                                <canvas id="statsChartCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Detay Listesi (FITAPP Arayüzüne Göre) -->
+                        <div class="stats-detailed-list">
+                            
+                            <div class="detail-row">
+                                <div class="detail-label-side">
+                                    <div class="detail-dot"></div>
+                                    <span class="detail-label">Toplam Faaliyetler</span>
+                                </div>
+                                <div class="detail-value-side">
+                                    <span class="detail-value" id="stat-total-activities">2</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-row">
+                                <div class="detail-label-side">
+                                    <div class="detail-dot"></div>
+                                    <span class="detail-label">Aktif Dakikalar</span>
+                                </div>
+                                <div class="detail-value-side">
+                                    <span class="detail-value" id="stat-active-mins">101</span>
+                                    <span class="premium-badge">PREMIUM</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-row">
+                                <div class="detail-label-side">
+                                    <div class="detail-dot"></div>
+                                    <span class="detail-label">Toplam Mesafe</span>
+                                </div>
+                                <div class="detail-value-side">
+                                    <span class="detail-value" id="stat-total-distance">5 km</span>
+                                    <span class="premium-badge">PREMIUM</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-row">
+                                <div class="detail-label-side">
+                                    <div class="detail-dot"></div>
+                                    <span class="detail-label">Yanmış Kalori</span>
+                                </div>
+                                <div class="detail-value-side">
+                                    <span class="detail-value" id="stat-total-calories">560 kcal</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. AĞIRLIK EKRANI -->
+                <div id="agirlik-screen" class="screen">
+                    <div class="stats-container">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-secondary);">Kilo Takip Paneli</span>
+                        
+                        <div class="tracker-main-box" style="background: var(--premium-grad); margin-bottom: 8px;">
+                            <span class="tracker-stat-label" style="color: rgba(255,255,255,0.77)">GÜNCEL AĞIRLIK</span>
+                            <div class="tracker-main-value" id="weight-current-display">-- kg</div>
+                        </div>
+
+                        <!-- Kilo Kaydetme Formu -->
+                        <div class="chart-card">
+                            <span class="chart-title">Yeni Kilo Kaydı Ekle</span>
+                            <form id="weight-log-form" style="display: flex; gap: 12px; width: 100%;">
+                                <input type="number" step="0.1" id="weight-input-val" class="form-input" placeholder="Örn: 68.5" required style="flex: 1;">
+                                <button type="submit" class="onboarding-btn" style="width: auto; margin-top: 0; padding: 0 24px; height: 48px;">Ekle</button>
+                            </form>
+                        </div>
+
+                        <!-- Ağırlık Grafiği -->
+                        <div class="chart-card">
+                            <span class="chart-title">Kilo Değişim Grafiği (Son 30 Gün)</span>
+                            <div class="chart-canvas-wrapper">
+                                <canvas id="weightChartCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. AYARLAR EKRANI -->
+                <div id="ayarlar-screen" class="screen">
+                    <div class="settings-container">
+                        
+                        <!-- Kullanıcı Profil Kartı (Giriş yapılmışsa görünür) -->
+                        <div id="settings-profile-card" class="settings-profile-box d-none" style="display: flex; align-items: center; gap: 16px; background-color: var(--surface-color); padding: 16px 20px; border-radius: var(--border-radius-md); box-shadow: var(--card-shadow); margin-bottom: 8px;">
+                            <div class="settings-profile-avatar" id="settings-avatar-circle" style="width: 50px; height: 50px; border-radius: 50%; background: var(--violet-grad); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; border: 2px solid white; box-shadow: 0 4px 10px rgba(92, 61, 146, 0.15);">BS</div>
+                            <div class="settings-profile-info" style="display: flex; flex-direction: column; flex: 1;">
+                                <div class="settings-profile-name" id="settings-profile-name" style="font-size: 15px; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; gap: 6px;">Birol Şanlı</div>
+                                <div class="settings-profile-email" id="settings-profile-email" style="font-size: 12px; color: var(--text-secondary); margin-top: 1px;">birol.sanli@gmail.com</div>
+                                <div class="settings-profile-status" style="font-size: 11px; color: #4caf50; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                                    <span class="status-dot active" style="margin-right: 0;"></span> Bulut Yedekleme Aktif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- YKME-FİT PREMIUM BANNER -->
+                        <div class="premium-banner">
+                            <div class="premium-banner-title">YKME-FİT PREMIUM</div>
+                            <div class="premium-banner-subtitle">Premium'yu Dene</div>
+                            <div class="premium-banner-desc">Abone olun ve şimdi tüm YKME-FİT Premium özelliklerine erişin! Reklamları kaldırın.</div>
+                        </div>
+
+                        <!-- BİLGİLERİM BÖLÜMÜ -->
+                        <div class="settings-section">
+                            <span class="settings-section-title">BİLGİLERİM</span>
+                            <div class="settings-card">
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <i class="fa-solid fa-earth-americas settings-item-icon"></i>
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Oturum aç</span>
+                                            <span class="settings-item-desc">Otomatik giriş yap, aktivitelerini kurtar.</span>
+                                        </div>
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--primary-color); font-weight: 700;">Neden giriş?</span>
+                                </div>
+
+                                <div class="settings-item" id="btn-personal-settings">
+                                    <div class="settings-item-left">
+                                        <i class="fa-regular fa-user settings-item-icon"></i>
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Kişisel Ayarlar</span>
+                                            <span class="settings-item-desc">Boy, ağırlık, cinsiyet, doğum tarihi</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 13px;"></i>
+                                </div>
+
+                                <!-- Çıkış Yap Butonu (Giriş yapılmışsa görünür) -->
+                                <div class="settings-item d-none" id="settings-logout-item" style="color: #ff3b30;">
+                                    <div class="settings-item-left" style="color: inherit;">
+                                        <i class="fa-solid fa-right-from-bracket settings-item-icon" style="color: inherit;"></i>
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title" style="color: inherit;">Oturumu Kapat</span>
+                                            <span class="settings-item-desc" style="color: #ffa39e;">Bu cihazdaki verileri temizler.</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255, 59, 48, 0.4); font-size: 13px;"></i>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- UYGULAMA AYARLARI -->
+                        <div class="settings-section">
+                            <div class="settings-card">
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <i class="fa-solid fa-sliders settings-item-icon"></i>
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Uygulama Ayarları</span>
+                                            <span class="settings-item-desc">Gizlilik, birimler, bildirimler</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 13px;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AKTİVİTELER AYARLARI -->
+                        <div class="settings-section">
+                            <span class="settings-section-title">AKTİVİTELER</span>
+                            <div class="settings-card">
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Ekranda tut</span>
+                                            <span class="settings-item-desc">Bir etkinliği takip ederken ekranı kapatmayın.</span>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settings-screen-awake">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Etkinlik İletişim Kutusunu Sonlandır</span>
+                                            <span class="settings-item-desc">Aktiviteyi bitirmeden önce onay kutusu gösterin.</span>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settings-confirm-end" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- SESLİ GERİ BİLDİRİM -->
+                        <div class="settings-section">
+                            <span class="settings-section-title">SESLİ GERİ BİLDİRİM</span>
+                            <div class="settings-card">
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Sesli geri bildirimi çalıştır</span>
+                                            <span class="settings-item-desc">Süre, hız ve mesafe güncellemelerini seslendirir.</span>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settings-audio-feedback" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="settings-item">
+                                    <div class="settings-item-left">
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Mola Sıklığı</span>
+                                            <span class="settings-item-desc">Her 500 metrede bir sesli geri bildirim yapar.</span>
+                                        </div>
+                                    </div>
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--primary-color);">her 500 m</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- YÖNETİM AYARLARI -->
+                        <div class="settings-section">
+                            <span class="settings-section-title">YÖNETİM</span>
+                            <div class="settings-card">
+                                <div class="settings-item" id="btn-admin-panel">
+                                    <div class="settings-item-left">
+                                        <i class="fa-solid fa-shield-halved settings-item-icon"></i>
+                                        <div class="settings-item-details">
+                                            <span class="settings-item-title">Yönetici Paneli (Admin)</span>
+                                            <span class="settings-item-desc">Reklamları ve premium kullanıcıları yönetin.</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 13px;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- YKME-FİT HAKKINDA -->
+                        <div class="settings-section" style="margin-bottom: 24px;">
+                            <span class="settings-section-title">YKME-FİT HAKKINDA</span>
+                            <div class="settings-card">
+                                <div class="settings-item"><span class="settings-item-title">Bilgi</span></div>
+                                <div class="settings-item"><span class="settings-item-title">Kullanım Şartları ve Gizlilik</span></div>
+                                <div class="settings-item" style="color: #3b5998;"><span class="settings-item-title" style="color: inherit;"><i class="fa-brands fa-facebook" style="margin-right: 8px;"></i> Facebook'ta beğenin</span></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 7. YÖNETİCİ PANELİ EKRANI -->
+                <div id="admin-screen" class="screen">
+                    <div class="admin-container" style="padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-secondary);">Yönetici Kontrol Paneli</span>
+                        
+                        <!-- Reklam Ayarları Kartı -->
+                        <div class="chart-card">
+                            <span class="chart-title" style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-rectangle-ad" style="color: var(--primary-color);"></i>Reklam Yönetimi (Google Ads)</span>
+                            <form id="admin-ad-form" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                                    <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Reklamları Göster (Premium Olmayanlara)</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="admin-toggle-ads" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label" style="font-size: 11px;">Reklam Türü</label>
+                                    <select id="admin-ad-type" class="form-input" style="background: white; height: 44px; padding: 0 12px; font-size: 13px;">
+                                        <option value="manual">Manuel Görsel ve Metin</option>
+                                        <option value="script">Google AdSense / Özel HTML Kod</option>
+                                    </select>
+                                </div>
+                                <!-- Manuel Reklam Alanları -->
+                                <div id="admin-manual-ad-fields">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" style="font-size: 11px;">Reklam Başlığı</label>
+                                        <input type="text" id="admin-ad-title" class="form-input" placeholder="Örn: YKME-FİT Premium'a Geçin!">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" style="font-size: 11px;">Reklam Açıklaması</label>
+                                        <input type="text" id="admin-ad-desc" class="form-input" placeholder="Örn: Reklamları kaldırın, tüm analizleri açın.">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" style="font-size: 11px;">Reklam Linki</label>
+                                        <input type="text" id="admin-ad-link" class="form-input" placeholder="Örn: #premium">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" style="font-size: 11px;">Reklam Görseli URL</label>
+                                        <input type="text" id="admin-ad-image" class="form-input" placeholder="https://...">
+                                    </div>
+                                </div>
+                                <!-- Google AdSense / Script Reklam Alanı -->
+                                <div id="admin-script-ad-fields" class="d-none">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" style="font-size: 11px;">Google AdSense / HTML Script Kodu</label>
+                                        <textarea id="admin-ad-script" class="form-input" placeholder='Örn: <ins class="adsbygoogle" ...></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>' style="height: 120px; padding: 12px; resize: none; font-family: monospace; font-size: 12px; line-height: 1.4;"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="onboarding-btn" style="height: 44px; font-size: 13px; margin-top: 10px;">Reklam Ayarlarını Kaydet</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Kullanıcı Yönetim Kartı -->
+                        <div class="chart-card">
+                            <span class="chart-title" style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-users-gear" style="color: var(--primary-color);"></i>Kullanıcı & Premium Lisans Yönetimi</span>
+                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Kayıtlı kullanıcıların premium yetkilerini buradan anında açıp kapatabilirsiniz.</div>
+                            <div id="admin-users-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                                <!-- JS dinamik olarak listeyi dolduracak -->
+                            </div>
+                        </div>
+                        
+                        <!-- Geri Dön Butonu -->
+                        <button type="button" class="onboarding-btn" id="btn-admin-back" style="background: #f0ebf7; color: var(--primary-color); box-shadow: none; height: 44px; margin-top: 0; font-size: 13px;">Ayarlar'a Geri Dön</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Google Ads Reklam Banner Mockup -->
+            <div id="google-ads-banner" class="ads-banner-container d-none">
+                <div class="ad-badge">Sponsorlu</div>
+                
+                <!-- A. Manuel Görsel ve Metin Reklam Kutusu -->
+                <div id="ad-manual-content" class="ad-content-box">
+                    <img id="ad-banner-image" src="" alt="Ad Image" class="ad-image-mock">
+                    <div class="ad-details">
+                        <div id="ad-banner-title" class="ad-title-mock">YKME-FİT Premium'a Geçin!</div>
+                        <div id="ad-banner-desc" class="ad-desc-mock">Reklamları kaldırın, tüm analizleri açın.</div>
+                    </div>
+                    <a id="ad-banner-link" href="#" target="_blank" class="ad-btn-mock">İncele</a>
+                </div>
+                
+                <!-- B. Google AdSense / HTML Script Kutusu -->
+                <div id="ad-script-content" class="d-none" style="width: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 50px;">
+                </div>
+            </div>
+
+            <!-- Alt Gezinme Menüsü -->
+            <div class="bottom-nav">
+                <button class="nav-item active" data-tab="basla" id="nav-basla">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <span>Başla</span>
+                </button>
+                <button class="nav-item" data-tab="gunluk" id="nav-gunluk">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Günlük</span>
+                </button>
+                <button class="nav-item" data-tab="yayin" id="nav-yayin">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                    <span>Yayın</span>
+                </button>
+                <button class="nav-item" data-tab="istatistikler" id="nav-istatistikler">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>İstatistikler</span>
+                </button>
+                <button class="nav-item" data-tab="agirlik" id="nav-agirlik">
+                    <i class="fa-solid fa-weight-scale"></i>
+                    <span>Ağırlık</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODALLER (AÇILIR PENCERELER) -->
+    
+    <!-- 1. Kişisel Profil Ayarları Modalı -->
+    <div id="profile-settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Kişisel Bilgiler</span>
+                <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="profile-settings-form">
+                <div class="form-group">
+                    <label class="form-label" for="prof-weight">Ağırlık (kg)</label>
+                    <input type="number" step="0.1" id="prof-weight" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="prof-height">Boy (cm)</label>
+                    <input type="number" id="prof-height" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="prof-gender">Cinsiyet</label>
+                    <select id="prof-gender" class="form-input" required style="background: white;">
+                        <option value="female">Kadın</option>
+                        <option value="male">Erkek</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="prof-birthdate">Doğum Tarihi</label>
+                    <input type="date" id="prof-birthdate" class="form-input" required>
+                </div>
+                <button type="submit" class="onboarding-btn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Manuel Aktivite Ekleme Modalı -->
+    <div id="manual-activity-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Manuel Koşu Ekle</span>
+                <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="manual-activity-form">
+                <div class="form-group">
+                    <label class="form-label" for="man-distance">Mesafe (km)</label>
+                    <input type="number" step="0.01" id="man-distance" class="form-input" placeholder="Örn: 5.2" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="man-duration">Süre (dakika)</label>
+                    <input type="number" id="man-duration" class="form-input" placeholder="Örn: 30" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="man-date">Tarih</label>
+                    <input type="datetime-local" id="man-date" class="form-input" required>
+                </div>
+                <button type="submit" class="onboarding-btn">Ekle</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Rota Harita Detay Modalı -->
+    <div id="route-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height: 90%; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <span class="modal-title">Koşu Rotası Detayı</span>
+                <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="modal-map-container" style="height: 350px; border-radius: var(--border-radius-md); overflow: hidden; background-color: #ddd;"></div>
+            <span style="font-size: 11px; color: var(--text-secondary); margin-top: 10px; text-align: center;">Koşu haritası Leaflet ve OpenStreetMap kullanılarak çizilmiştir.</span>
+        </div>
+    </div>
+
+    <!-- 4. Google Giriş Modalı (Gelişmiş Hesap Seçicili) -->
+    <div id="google-login-modal" class="modal-overlay">
+        <div class="modal-content" style="border-radius: var(--border-radius-md); padding: 24px; text-align: center; max-height: 90%;">
+            <div class="modal-header" style="justify-content: flex-end; margin-bottom: 0px;">
+                <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Google Logo SVG -->
+            <svg viewBox="0 0 24 24" width="36" height="36" style="margin: 0 auto 12px auto; display: block;">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            
+            <!-- A. HESAP SEÇİCİ GÖRÜNÜMÜ -->
+            <div id="google-view-picker">
+                <h2 style="font-size: 18px; font-weight: 700; color: #2c2543; margin-bottom: 4px;">Bir hesap seçin</h2>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">YKME-FİT uygulamasına devam etmek için</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px; text-align: left; width: 100%; max-height: 250px; overflow-y: auto;">
+                    <!-- Hesap 1 (Birol Şanlı) -->
+                    <button class="google-account-btn" data-name="Birol Şanlı" data-email="birol.sanli@gmail.com">
+                        <div class="google-account-avatar" style="background-color: #4285F4;">B</div>
+                        <div class="google-account-details">
+                            <span class="google-account-name">Birol Şanlı</span>
+                            <span class="google-account-email">birol.sanli@gmail.com</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Hesap 2 (Yasin Kaya) -->
+                    <button class="google-account-btn" data-name="Yasin Kaya" data-email="yasin.kaya@gmail.com">
+                        <div class="google-account-avatar" style="background-color: #34A853;">Y</div>
+                        <div class="google-account-details">
+                            <span class="google-account-name">Yasin Kaya</span>
+                            <span class="google-account-email">yasin.kaya@gmail.com</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Başka bir hesap kullan -->
+                    <button class="google-account-btn" id="btn-google-use-other" style="border-top: 1px solid #eee; margin-top: 4px; border-radius: 0; padding-top: 12px; background: none;">
+                        <div class="google-account-avatar" style="background-color: #7e7e9a; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-user-plus" style="font-size: 12px; color: white;"></i></div>
+                        <div class="google-account-details">
+                            <span class="google-account-name" style="color: #4285F4; font-weight: 600;">Başka bir hesap kullan</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- B. MANUEL HESAP GİRİŞ GÖRÜNÜMÜ (Gizli) -->
+            <div id="google-view-manual" class="d-none">
+                <h2 style="font-size: 18px; font-weight: 700; color: #2c2543; margin-bottom: 4px;">Hesap ekleyin</h2>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Google hesabı bilgilerinizi yazın</p>
+                
+                <form id="google-login-form" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 11px;">Adınız Soyadınız</label>
+                        <input type="text" id="google-display-name" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 11px;">Gmail Adresiniz</label>
+                        <input type="email" id="google-email" class="form-input" placeholder="ahmet.yilmaz@gmail.com" required>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="btn-google-manual-back" class="onboarding-btn" style="flex: 1; background: #f0ebf7; color: var(--primary-color); box-shadow: none; margin-top: 0; height: 48px;">Geri</button>
+                        <button type="submit" class="onboarding-btn" style="flex: 2; margin-top: 0; height: 48px;">Devam Et</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- C. YÜKLENİYOR / SENKRONİZASYON GÖRÜNÜMÜ (Gizli) -->
+            <div id="google-view-loading" class="d-none" style="padding: 20px 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                    <div class="google-spinner"></div>
+                    <div id="google-loading-text" style="font-size: 14px; font-weight: 600; color: #2c2543;">Google hesabına bağlanılıyor...</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">Lütfen pencereyi kapatmayın.</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    </div>
+
+    <!-- 5. Premium Satın Alma Modalı -->
+    <div id="premium-checkout-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height: 90%; border-top-left-radius: var(--border-radius-lg); border-top-right-radius: var(--border-radius-lg); padding: 24px;">
+            <div class="modal-header">
+                <span class="modal-title" style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-crown" style="color: #ff9d00;"></i>YKME-FİT Premium</span>
+                <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <p style="font-size: 13px; color: var(--text-secondary); text-align: center;">Tüm kilitli özellikleri açın ve hedeflerinize daha hızlı ulaşın!</p>
+                
+                <!-- Paket Seçenekleri -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="goal-card selected" id="pack-annual" style="flex-direction: column; align-items: center; text-align: center; padding: 16px; border-radius: var(--border-radius-md); cursor: pointer; border-color: var(--primary-color);">
+                        <span style="font-size: 10px; font-weight: 800; color: #ff5e00; text-transform: uppercase; margin-bottom: 4px;">%45 Tasarruf</span>
+                        <span style="font-weight: 700; font-size: 14px;">Yıllık Plan</span>
+                        <span style="font-size: 20px; font-weight: 800; color: var(--primary-dark); margin: 6px 0;">₺199.99</span>
+                        <span style="font-size: 11px; color: var(--text-secondary);">₺16.66 / ay</span>
+                    </div>
+                    <div class="goal-card" id="pack-monthly" style="flex-direction: column; align-items: center; text-align: center; padding: 16px; border-radius: var(--border-radius-md); cursor: pointer;">
+                        <span style="height: 16px; display: block;"></span> <!-- Hizalama için boşluk -->
+                        <span style="font-weight: 700; font-size: 14px;">Aylık Plan</span>
+                        <span style="font-size: 20px; font-weight: 800; color: var(--primary-dark); margin: 6px 0;">₺29.99</span>
+                        <span style="font-size: 11px; color: var(--text-secondary);">Her ay yenilenir</span>
+                    </div>
+                </div>
+
+                <!-- Ödeme Formu Mockup -->
+                <form id="premium-payment-form" style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-credit-card"></i>Kart Bilgileri</span>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 11px;">Kart Numarası</label>
+                        <input type="text" id="pay-card-num" class="form-input" placeholder="4352 1892 2012 3550" maxlength="19" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="font-size: 11px;">Son Kullanma</label>
+                            <input type="text" id="pay-card-expiry" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" style="font-size: 11px;">CVC / CVV</label>
+                            <input type="password" id="pay-card-cvv" class="form-input" placeholder="***" maxlength="3" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="onboarding-btn" id="btn-submit-payment" style="background: var(--premium-grad); box-shadow: 0 8px 20px rgba(255, 94, 0, 0.25); margin-top: 12px;">Güvenli Ödeme Yap</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Yükleme -->
+    <script>
+        // Emülatördeki saati güncel tutmak için
+        function updateTime() {
+            const timeEl = document.getElementById('phone-time');
+            if (timeEl) {
+                const now = new Date();
+                timeEl.textContent = now.toTimeString().split(' ')[0].substring(0, 5);
+            }
+        }
+        updateTime();
+        setInterval(updateTime, 1000 * 30);
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
