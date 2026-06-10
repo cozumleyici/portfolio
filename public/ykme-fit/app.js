@@ -107,37 +107,30 @@ function hideStartupLogin() {
 }
 
 function openGoogleLoginModal() {
-    const googleClientId = localStorage.getItem('kosutakip_google_client_id') || DEFAULT_GOOGLE_CLIENT_ID;
-    if (googleClientId && window.google) {
-        triggerRealGoogleSignIn(googleClientId);
+    if (!window.google) {
+        alert("Google Giriş Kütüphanesi henüz yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.");
         return;
     }
+
+    const googleClientId = localStorage.getItem('kosutakip_google_client_id') || DEFAULT_GOOGLE_CLIENT_ID;
     
-    // Fallback: Gerçekçi Pop-up Hesap Seçici
-    const width = 520;
-    const height = 600;
-    const left = (window.screen.width / 2) - (width / 2);
-    const top = (window.screen.height / 2) - (height / 2);
-    
-    // Klasörün altındaysa relative path'den google-login.html dosyasını çağırıyoruz
-    const url = 'google-login.html'; 
-    
-    const popup = window.open(url, 'GoogleAuth', `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
-    
-    if (popup) {
-        popup.focus();
+    const modal = document.getElementById('google-login-modal');
+    const loadingView = document.getElementById('google-view-loading');
+    const setupView = document.getElementById('google-view-setup');
+
+    if (modal) modal.classList.add('active');
+
+    if (googleClientId) {
+        if (loadingView) loadingView.classList.remove('d-none');
+        if (setupView) setupView.classList.add('d-none');
+        triggerRealGoogleSignIn(googleClientId);
     } else {
-        // Pop-up engelleyici varsa modal fallback'ini göster
-        const picker = document.getElementById('google-view-picker');
-        const manual = document.getElementById('google-view-manual');
-        const loading = document.getElementById('google-view-loading');
+        if (loadingView) loadingView.classList.add('d-none');
+        if (setupView) setupView.classList.remove('d-none');
         
-        if (picker) picker.classList.remove('d-none');
-        if (manual) manual.classList.add('d-none');
-        if (loading) loading.classList.add('d-none');
-        
-        const modal = document.getElementById('google-login-modal');
-        if (modal) modal.classList.add('active');
+        // Setup input alanını temizle
+        const setupInput = document.getElementById('setup-google-client-id');
+        if (setupInput) setupInput.value = '';
     }
 }
 
@@ -148,17 +141,14 @@ function triggerRealGoogleSignIn(clientId) {
             scope: 'openid profile email',
             callback: (tokenResponse) => {
                 if (tokenResponse && tokenResponse.access_token) {
-                    // Yükleniyor durumunu göster
                     const modal = document.getElementById('google-login-modal');
-                    const picker = document.getElementById('google-view-picker');
-                    const manual = document.getElementById('google-view-manual');
-                    const loading = document.getElementById('google-view-loading');
+                    const loadingView = document.getElementById('google-view-loading');
+                    const setupView = document.getElementById('google-view-setup');
                     
                     if (modal) modal.classList.add('active');
-                    if (picker) picker.classList.add('d-none');
-                    if (manual) manual.classList.add('d-none');
-                    if (loading) {
-                        loading.classList.remove('d-none');
+                    if (setupView) setupView.classList.add('d-none');
+                    if (loadingView) {
+                        loadingView.classList.remove('d-none');
                         const loadingText = document.getElementById('google-loading-text');
                         if (loadingText) loadingText.textContent = "Google hesabına bağlanılıyor...";
                     }
@@ -185,25 +175,28 @@ function triggerRealGoogleSignIn(clientId) {
             },
             error_callback: (err) => {
                 console.error("Google Auth Hatası:", err);
+                const modal = document.getElementById('google-login-modal');
+                if (modal) modal.classList.remove('active');
                 alert("Google girişi esnasında bir hata oluştu.");
             }
         });
         tokenClient.requestAccessToken({ prompt: 'select_account' });
     } catch (e) {
         console.error("Google SDK başlatma hatası:", e);
+        const modal = document.getElementById('google-login-modal');
+        if (modal) modal.classList.remove('active');
         alert("Google Giriş Sistemi başlatılamadı. Lütfen Client ID'nizin doğruluğunu kontrol edin.");
     }
 }
 
-// Google Giriş İşleme Simülasyonu & Gerçek Giriş Entegrasyonu
+// Google Giriş İşleme
 function processGoogleSignIn(displayName, email, photoUrl = '') {
-    const picker = document.getElementById('google-view-picker');
-    const manual = document.getElementById('google-view-manual');
-    const loading = document.getElementById('google-view-loading');
+    const modal = document.getElementById('google-login-modal');
+    const loadingView = document.getElementById('google-view-loading');
+    const setupView = document.getElementById('google-view-setup');
     
-    if (picker) picker.classList.add('d-none');
-    if (manual) manual.classList.add('d-none');
-    if (loading) loading.classList.remove('d-none');
+    if (setupView) setupView.classList.add('d-none');
+    if (loadingView) loadingView.classList.remove('d-none');
     
     const loadingText = document.getElementById('google-loading-text');
     if (loadingText) loadingText.textContent = "Google hesabına bağlanılıyor...";
@@ -218,11 +211,7 @@ function processGoogleSignIn(displayName, email, photoUrl = '') {
             state.profile.photoUrl = photoUrl;
             DB.saveProfile(state.profile);
             
-            const modal = document.getElementById('google-login-modal');
             if (modal) modal.classList.remove('active');
-            
-            const manualForm = document.getElementById('google-login-form');
-            if (manualForm) manualForm.reset();
             
             // Buluttan tüm verileri (koşu, kilo, profil) geri yükle veya ilk yedeği oluştur
             const count = restoreAllFromCloud(email);
@@ -1820,47 +1809,39 @@ function setupEventListeners() {
         });
     }
 
-    // Google Hesabı Seçiciler Tıklama Kontrolü
-    document.querySelectorAll('.google-account-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+    // Google Client ID Kurulum Kaydetme ve Giriş Butonu
+    const btnSaveSetup = document.getElementById('btn-save-setup-client-id');
+    if (btnSaveSetup) {
+        btnSaveSetup.addEventListener('click', (e) => {
             e.preventDefault();
-            const displayName = btn.getAttribute('data-name');
-            const email = btn.getAttribute('data-email');
-            if (displayName && email) {
-                processGoogleSignIn(displayName, email);
+            const setupClientId = document.getElementById('setup-google-client-id').value.trim();
+            if (!setupClientId) {
+                alert("Lütfen geçerli bir Google Client ID girin.");
+                return;
             }
-        });
-    });
-
-    // Google "Başka hesap kullan" Tıklaması
-    const useOtherBtn = document.getElementById('btn-google-use-other');
-    if (useOtherBtn) {
-        useOtherBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('google-view-picker').classList.add('d-none');
-            document.getElementById('google-view-manual').classList.remove('d-none');
+            if (!setupClientId.includes('apps.googleusercontent.com')) {
+                alert("Girdiğiniz değer geçerli bir Google Client ID formatında görünmüyor. Lütfen '.apps.googleusercontent.com' ile biten tam değeri girin.");
+                return;
+            }
+            
+            // Kaydet
+            localStorage.setItem('kosutakip_google_client_id', setupClientId);
+            
+            // Admin panelindeki input'u da senkronize et
+            const adminGoogleClientId = document.getElementById('admin-google-client-id');
+            if (adminGoogleClientId) {
+                adminGoogleClientId.value = setupClientId;
+            }
+            
+            // Görünümleri değiştir ve Girişi başlat
+            const loadingView = document.getElementById('google-view-loading');
+            const setupView = document.getElementById('google-view-setup');
+            if (setupView) setupView.classList.add('d-none');
+            if (loadingView) loadingView.classList.remove('d-none');
+            
+            triggerRealGoogleSignIn(setupClientId);
         });
     }
-
-    // Google Manuel Giriş "Geri" Tıklaması
-    const manualBackBtn = document.getElementById('btn-google-manual-back');
-    if (manualBackBtn) {
-        manualBackBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('google-view-manual').classList.add('d-none');
-            document.getElementById('google-view-picker').classList.remove('d-none');
-        });
-    }
-
-    // Google Giriş Formu Gönderimi (Manuel Giriş İçin)
-    document.getElementById('google-login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const displayName = document.getElementById('google-display-name').value.trim();
-        const email = document.getElementById('google-email').value.trim();
-        if (displayName && email) {
-            processGoogleSignIn(displayName, email);
-        }
-    });
 
     // Premium Banner Tıklaması
     const premiumBanner = document.querySelector('.premium-banner');
@@ -2076,12 +2057,7 @@ function setupEventListeners() {
         });
     }
 
-    // Google pop-up penceresinden gelen giriş mesajlarını dinle
-    window.addEventListener('message', (e) => {
-        if (e.data && e.data.type === 'google-sign-in-mock') {
-            processGoogleSignIn(e.data.name, e.data.email, e.data.photoUrl || '');
-        }
-    });
+
 }
 
 // Screen WakeLock API yönetimi
