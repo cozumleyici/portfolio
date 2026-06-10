@@ -1394,3 +1394,15 @@ input:checked + .toggle-slider:before {
     }
 }
 
+/* JS Tarafından eklenen mobil/tablet tam ekran modu */
+.phone-container.fullscreen-mode {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    max-height: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
