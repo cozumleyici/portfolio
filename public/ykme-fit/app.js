@@ -24,6 +24,10 @@ const state = {
     watchId: null,
     simulationMode: true, // Varsayılan olarak simülasyon modu açık (testler için)
     lastSpeechDistance: 0.0,
+    startTime: null,
+    accumulatedDuration: 0,
+    lastGPSUpdateTime: null,
+    kalmanFilter: null,
 
     // Harita Nesneleri
     map: null,
@@ -34,6 +38,79 @@ const state = {
     statsChart: null,
     weightChart: null
 };
+
+// Geolocation Kalman Filter Sınıfı (GPS Dalgalanmalarını Önlemek İçin)
+class GeolocationKalmanFilter {
+    constructor(processNoise = 3) {
+        this.processNoise = processNoise; // Q: Süreç Gürültüsü
+        this.variance = -1.0; // P: Hata Kovaryansı
+        this.lastLat = null;
+        this.lastLng = null;
+        this.lastTime = null;
+    }
+    filter(lat, lng, accuracy, time) {
+        if (this.variance < 0) {
+            this.lastLat = lat;
+            this.lastLng = lng;
+            this.variance = accuracy * accuracy;
+            this.lastTime = time;
+            return { lat, lng };
+        }
+        const duration = (time - this.lastTime) / 1000.0;
+        if (duration > 0) {
+            this.variance += duration * this.processNoise * this.processNoise / 1000.0;
+            this.lastTime = time;
+        }
+        const k = this.variance / (this.variance + accuracy * accuracy);
+        this.lastLat = this.lastLat + k * (lat - this.lastLat);
+        this.lastLng = this.lastLng + k * (lng - this.lastLng);
+        this.variance = (1.0 - k) * this.variance;
+        return { lat: this.lastLat, lng: this.lastLng };
+    }
+    reset() {
+        this.variance = -1.0;
+        this.lastLat = null;
+        this.lastLng = null;
+        this.lastTime = null;
+    }
+}
+
+// Arka planda tarayıcının uykuya dalmasını önlemek için Sessiz Ses Çalma Mekanizması (Web Audio API)
+let audioCtx = null;
+let silenceNode = null;
+function startBackgroundAudio() {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        // 2 saniyelik boş tampon oluştur
+        const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.001; // Son derece sessiz, pratik olarak duyulmaz
+        
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        source.start();
+        silenceNode = source;
+    } catch (e) {
+        console.warn("Arka plan ses bağlamı hatası:", e);
+    }
+}
+function stopBackgroundAudio() {
+    if (silenceNode) {
+        try {
+            silenceNode.stop();
+        } catch (e) {}
+        silenceNode = null;
+    }
+}
 
 // Google Client ID (Tüm cihazlarda çalışması için Google Cloud Console'dan aldığınız kodu buraya yapıştırın)
 const DEFAULT_GOOGLE_CLIENT_ID = '991487984220-2d20pbsu2jhjcaq1oq1g421vm1jf5ark.apps.googleusercontent.com';
@@ -65,6 +142,14 @@ function initApp() {
     const simToggle = document.getElementById('sim-mode-toggle');
     if (simToggle) {
         simToggle.checked = state.simulationMode;
+    }
+    const simContainer = document.querySelector('.simulation-toggle-container');
+    if (simContainer) {
+        if (isMobileDevice) {
+            simContainer.style.display = 'none';
+        } else {
+            simContainer.style.display = 'flex';
+        }
     }
 
     // Olay Dinleyicileri (Event Listeners) tanımla
@@ -458,6 +543,23 @@ function initMap() {
     }, 200);
 }
 
+// Gerçek GPS izlemeyi başlatan fonksiyon (Gerektiğinde watchdog tarafından yeniden başlatılabilir)
+function startGPSWatch() {
+    if (state.watchId) {
+        navigator.geolocation.clearWatch(state.watchId);
+    }
+    state.watchId = navigator.geolocation.watchPosition(
+        handleGPSUpdate,
+        (err) => {
+            console.warn('GPS Hatası: ', err);
+            // Peş peşe hatalarda döngüye girmeyi önlemek için son güncellemeyi yenile
+            state.lastGPSUpdateTime = Date.now();
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+    state.lastGPSUpdateTime = Date.now();
+}
+
 // --- KOŞU AKTİVİTE TAKİP MOTORU ---
 function startTracking() {
     if (state.isRunning) return;
@@ -469,6 +571,9 @@ function startTracking() {
     state.calories = 0;
     state.routePoints = [];
     state.lastSpeechDistance = 0.0;
+    state.startTime = Date.now();
+    state.accumulatedDuration = 0;
+    state.kalmanFilter = new GeolocationKalmanFilter();
 
     // Arayüzü güncelle
     updateTrackingUI();
@@ -484,15 +589,30 @@ function startTracking() {
     // Sesli başlangıç bildirimi
     speakText("Koşu başlatıldı. İyi antrenmanlar!");
 
+    // Ekran açık kalma kilidi (Wake Lock) iste
+    if (state.profile.keepScreenOn) {
+        requestWakeLock();
+    }
+
+    // Arka planda tarayıcının uyku moduna geçmesini engelleyen sessiz müziği başlat
+    startBackgroundAudio();
+
     // Timer başlat
     state.runTimer = setInterval(() => {
         if (!state.isPaused) {
-            state.duration++;
+            // Tarayıcı arka planda yavaşlatılsa bile süreyi gerçek zaman farkıyla hesapla
+            state.duration = state.accumulatedDuration + Math.floor((Date.now() - state.startTime) / 1000);
             calculateStats();
             updateTrackingUI();
 
             if (state.simulationMode) {
                 simulateGPSMove();
+            } else {
+                // GPS Watchdog: 20 saniye boyunca hiç GPS sinyali gelmemişse izlemeyi baştan yükle
+                if (Date.now() - state.lastGPSUpdateTime > 20000) {
+                    console.log("GPS sinyali alınamadı, yeniden bağlanılıyor...");
+                    startGPSWatch();
+                }
             }
         }
     }, 1000);
@@ -500,11 +620,7 @@ function startTracking() {
     // Gerçek GPS izlemeyi başlat
     if (!state.simulationMode) {
         if (navigator.geolocation) {
-            state.watchId = navigator.geolocation.watchPosition(
-                handleGPSUpdate,
-                (err) => console.warn('GPS Hatası: ', err),
-                { enableHighAccuracy: true, distanceFilter: 2 }
-            );
+            startGPSWatch();
         } else {
             alert("Cihazınızda GPS desteği bulunamadı. Simülasyon moduna geçiliyor.");
             document.getElementById('sim-mode-toggle').checked = true;
@@ -519,17 +635,27 @@ function pauseTracking() {
     if (state.isPaused) {
         // Devam Et
         state.isPaused = false;
+        state.startTime = Date.now();
         speakText("Koşu devam ediyor.");
         document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i>';
         document.getElementById('btn-pause').style.backgroundColor = 'var(--surface-color)';
         document.getElementById('btn-pause').style.color = 'var(--primary-color)';
+        
+        startBackgroundAudio();
+        if (state.profile.keepScreenOn) {
+            requestWakeLock();
+        }
     } else {
         // Duraklat
         state.isPaused = true;
+        state.accumulatedDuration += Math.floor((Date.now() - state.startTime) / 1000);
         speakText("Koşu duraklatıldı.");
         document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-play"></i>';
         document.getElementById('btn-pause').style.backgroundColor = '#4caf50';
         document.getElementById('btn-pause').style.color = 'white';
+        
+        releaseWakeLock();
+        stopBackgroundAudio();
     }
 }
 
@@ -541,7 +667,10 @@ function stopTracking() {
         clearInterval(state.runTimer);
         if (state.watchId) {
             navigator.geolocation.clearWatch(state.watchId);
+            state.watchId = null;
         }
+        releaseWakeLock();
+        stopBackgroundAudio();
 
         // Koşuyu kaydet
         if (state.profile.isLoggedIn) {
@@ -605,21 +734,67 @@ function stopTracking() {
 function handleGPSUpdate(position) {
     if (state.isPaused) return;
 
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-    const newPoint = { lat, lng };
+    // GPS Watchdog zamanlayıcısını güncelle
+    state.lastGPSUpdateTime = Date.now();
+
+    const accuracy = position.coords.accuracy;
+    const timestamp = position.timestamp || Date.now();
+
+    // 1. Düşük doğruluklu noktaları filtrele (Örn: 25 metreden kötü doğruluk)
+    // Bu, zayıf sinyalden veya hücresel veriden kaynaklanan hatalı sapmaları önler.
+    if (accuracy && accuracy > 25) {
+        console.log(`Düşük GPS Doğruluğu yoksayıldı: ${accuracy.toFixed(1)}m`);
+        return;
+    }
+
+    const rawLat = position.coords.latitude;
+    const rawLng = position.coords.longitude;
+
+    // 2. Kalman Filtresi ile koordinatları yumuşat (GPS gürültüsünü giderir)
+    if (!state.kalmanFilter) {
+        state.kalmanFilter = new GeolocationKalmanFilter();
+    }
+    const smoothed = state.kalmanFilter.filter(rawLat, rawLng, accuracy || 10, timestamp);
+    const newPoint = { 
+        lat: smoothed.lat, 
+        lng: smoothed.lng,
+        time: timestamp
+    };
 
     if (state.routePoints.length > 0) {
         const lastPoint = state.routePoints[state.routePoints.length - 1];
-        const distChange = calculateDistanceBetween(lastPoint.lat, lastPoint.lng, lat, lng);
         
-        // Çok küçük titreşimleri veya hatalı sıçramaları filtrele (Hız 40 km/h'ten büyük olamaz gibi)
-        if (distChange > 0.001 && distChange < 0.1) { 
-            state.distance += distChange;
-            state.routePoints.push(newPoint);
-            updateMapRoute(newPoint);
+        // Önceki kayıtlı nokta ile olan mesafeyi hesapla
+        const distChange = calculateDistanceBetween(lastPoint.lat, lastPoint.lng, smoothed.lat, smoothed.lng);
+        
+        // Geçen zaman (saniye cinsinden)
+        const timeChange = (timestamp - (lastPoint.time || timestamp - 1000)) / 1000.0;
+        
+        if (timeChange > 0) {
+            // Hızı hesapla (km/sa)
+            const speed = distChange / (timeChange / 3600.0);
+
+            // 3. Maksimum Hız Filtresi: Hız 30 km/sa'ten büyük olamaz.
+            // Bu, anlık GPS ışınlanmalarını (tunnel çıkışları, binalardan yansıyan sinyalleri) önler.
+            if (speed > 30.0) {
+                console.log(`Hatalı GPS Sıçraması (Hız: ${speed.toFixed(1)} km/sa) yoksayıldı.`);
+                return;
+            }
+
+            // 4. Sabit Durma / Kayma Filtresi (Stationary Jitter): 
+            // Eğer mesafe 4 metreden azsa (0.004 km) ve son kayıttan bu yana 10 saniyeden az geçtiyse, 
+            // kullanıcı duruyor veya çok az kıpırdıyor kabul edilir, mesafe eklenmez.
+            if (distChange < 0.004 && timeChange < 10) {
+                return;
+            }
         }
+
+        // Değişiklikleri kaydet ve haritayı güncelle
+        state.distance += distChange;
+        state.routePoints.push(newPoint);
+        updateMapRoute(newPoint);
     } else {
+        // İlk nokta
         state.routePoints.push(newPoint);
         updateMapRoute(newPoint);
     }
@@ -641,7 +816,7 @@ function simulateGPSMove() {
 
     const newLat = lastPoint.lat + latChange;
     const newLng = lastPoint.lng + lngChange;
-    const newPoint = { lat: newLat, lng: newLng };
+    const newPoint = { lat: newLat, lng: newLng, time: Date.now() };
 
     state.routePoints.push(newPoint);
 
@@ -2054,9 +2229,14 @@ function setupEventListeners() {
         });
     }
 
-
-
-
+    // Görünürlük değiştiğinde (arka plandan ön plana gelindiğinde) Wake Lock kilidini yenile
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            if (state.isRunning && !state.isPaused && state.profile.keepScreenOn) {
+                requestWakeLock();
+            }
+        }
+    });
 }
 
 // Screen WakeLock API yönetimi
